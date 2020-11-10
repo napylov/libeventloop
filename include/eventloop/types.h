@@ -2,6 +2,8 @@
 #define TYPES_H
 
 #include <memory>
+#include <functional>
+
 #include <event2/event.h>
 
 namespace eventloop
