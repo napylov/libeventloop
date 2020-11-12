@@ -1,3 +1,4 @@
+#include <event2/event.h>
 #include "eventloop/loop.h"
 
 namespace eventloop
@@ -22,6 +23,7 @@ static void event_destructor( event *ev )
 {
     if ( !ev )
         return;
+
     void *arg = event_get_callback_arg( ev );
     if ( arg )
     {
@@ -45,32 +47,44 @@ static void event_callback( int fd, short flags, void *arg )
 }
 
 
-event_cfg_ptr loop::make_config()
+int loop::run()
 {
-    return event_cfg_ptr( event_config_new(), &config_destructor );
+    return event_base_dispatch( base.get() );
 }
 
 
-event_base_ptr loop::make_base()
+bool loop::stop()
 {
-    return event_base_ptr( event_base_new(), &base_destructor );
+    return event_base_loopbreak( base.get() ) != -1;
 }
 
 
-event_base_ptr loop::make_base( event_cfg_ptr &cfg )
+bool loop::make_config()
 {
-    return event_base_ptr
-                (
-                    event_base_new_with_config( cfg.get() ),
-                    &base_destructor
-                )
-    ;
+    cfg = event_cfg_ptr( event_config_new(), &config_destructor );
+    return cfg.operator bool();
+}
+
+
+bool loop::make_base()
+{
+    if ( cfg )
+    {
+        base = event_base_ptr
+                    (
+                        event_base_new_with_config( cfg.get() ),
+                        &base_destructor
+                    )
+        ;
+    }
+    else
+        base = event_base_ptr( event_base_new(), &base_destructor );
+
+    return base.operator bool();
 }
 
 
 event_ptr loop::make_event(
-                                loop *obj,
-                                event_base_ptr &base,
                                 int fd,
                                 short what,
                                 void *arg,
@@ -81,7 +95,7 @@ event_ptr loop::make_event(
     loop::callback_info *info = nullptr;
     try
     {
-        info = new loop::callback_info( obj, fn, arg );
+        info = new loop::callback_info( this, fn, arg );
     }
     catch ( std::bad_alloc & )
     {
@@ -102,4 +116,4 @@ event_ptr loop::make_event(
 }
 
 
-}
+} // namespace eventloop

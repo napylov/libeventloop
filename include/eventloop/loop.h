@@ -18,9 +18,9 @@ public:
 
     struct callback_info
     {
-        loop            *obj    = nullptr;
+        loop            *obj;
         callback_fn     fn;
-        void            *arg    = nullptr;
+        void            *arg;
 
         callback_info() = delete;
         callback_info( loop *obj_, callback_fn fn_, void *arg_ )
@@ -28,30 +28,39 @@ public:
         ~callback_info() = default;
     };
 
+
+    static const int RUN_ERROR  = -1;
+    static const int OK         = 0;
+    static const int NO_EVENTS  = 1;
+
 public:
     loop() = default;
     virtual ~loop() = default;
 
+    int run();
+    bool stop();
+
+public:
     inline static void call_callback( int fd, short what, callback_info *info )
     {
-        if ( info && info->obj )
+        if ( info && info->obj && info->fn )
             info->fn(*(info->obj), fd, what, info->arg);
     }
 
-private:
-    static event_cfg_ptr    make_config();
-    static event_base_ptr   make_base();
-    static event_base_ptr   make_base( event_cfg_ptr &cfg );
 
-    static event_ptr        make_event(
-                                loop *obj,
-                                event_base_ptr &base,
-                                int fd,
-                                short what,
-                                void *arg,
-                                callback_fn fn,
-                                const timeval *tv = nullptr
-                            )
+
+private:
+    bool        make_config();
+    bool        make_base();
+
+    event_ptr   make_event
+                (
+                    int fd,
+                    short what,
+                    void *arg,
+                    callback_fn fn,
+                    const timeval *tv = nullptr
+                )
     ;
 };
 
