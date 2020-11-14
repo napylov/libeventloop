@@ -15,6 +15,7 @@ include_directories( ${INC_DIR} )
 set(
     SRC
     ${SRC_DIR}/loop.cpp
+    ${SRC_DIR}/file_descriptor_wrapper.cpp
 )
 
 add_library(

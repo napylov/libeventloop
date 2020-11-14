@@ -25,7 +25,7 @@ public:
         callback_info() = delete;
         callback_info( loop *obj_, callback_fn fn_, void *arg_ )
             : obj( obj_ ), fn( fn_ ), arg( arg_ ) {}
-        ~callback_info() = default;
+        virtual ~callback_info() = default;
     };
 
 
@@ -50,18 +50,20 @@ public:
 
 
 private:
-    bool        make_config();
-    bool        make_base();
+    virtual bool        make_config();
+    virtual bool        make_base();
 
-    event_ptr   make_event
-                (
-                    int fd,
-                    short what,
-                    void *arg,
-                    callback_fn fn,
-                    const timeval *tv = nullptr
-                )
+    virtual event_ptr   make_event
+                        (
+                            int fd,
+                            short what,
+                            void *arg,
+                            callback_fn fn,
+                            const timeval *tv = nullptr
+                        )
     ;
+
+    virtual callback_info   *make_callback_info( callback_fn fn_, void *arg_ );
 };
 
 }; // namespace eventloop;

@@ -92,15 +92,9 @@ event_ptr loop::make_event(
                                 const timeval *tv
                            )
 {
-    loop::callback_info *info = nullptr;
-    try
-    {
-        info = new loop::callback_info( this, fn, arg );
-    }
-    catch ( std::bad_alloc & )
-    {
+    loop::callback_info *info = make_callback_info( fn, arg );
+    if ( !info )
         return event_ptr();
-    }
 
     event_ptr result
                 (
@@ -113,6 +107,21 @@ event_ptr loop::make_event(
         event_add( result.get(), tv );
 
     return result;
+}
+
+
+loop::callback_info *loop::make_callback_info( callback_fn fn, void *arg )
+{
+    loop::callback_info *info = nullptr;
+    try
+    {
+        info = new loop::callback_info( this, fn, arg );
+    }
+    catch ( std::bad_alloc & )
+    {
+    }
+
+    return info;
 }
 
 
