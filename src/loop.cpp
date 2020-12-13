@@ -49,6 +49,8 @@ static void event_callback( int fd, short flags, void *arg )
 
 int loop::run()
 {
+    if ( !init() )
+        return -1;
     return event_base_dispatch( base.get() );
 }
 

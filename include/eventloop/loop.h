@@ -2,6 +2,8 @@
 #define LOOP_H
 
 #include <functional>
+#include <utility>
+
 #include "types.h"
 
 namespace eventloop
@@ -9,12 +11,12 @@ namespace eventloop
 
 class loop
 {
-private:
+protected:
     event_cfg_ptr               cfg;
     event_base_ptr              base;
 
 public:
-    typedef std::function<void(loop &,int, short, void*)>  callback_fn;
+    typedef std::function<void(int, short, void*)>  callback_fn;
 
     struct callback_info
     {
@@ -27,7 +29,6 @@ public:
             : obj( obj_ ), fn( fn_ ), arg( arg_ ) {}
         virtual ~callback_info() = default;
     };
-
 
     static const int RUN_ERROR  = -1;
     static const int OK         = 0;
@@ -44,12 +45,12 @@ public:
     inline static void call_callback( int fd, short what, callback_info *info )
     {
         if ( info && info->obj && info->fn )
-            info->fn(*(info->obj), fd, what, info->arg);
+            info->fn(fd, what, info->arg);
     }
 
 
 
-private:
+protected:
     virtual bool        make_config();
     virtual bool        make_base();
 
@@ -64,6 +65,8 @@ private:
     ;
 
     virtual callback_info   *make_callback_info( callback_fn fn_, void *arg_ );
+
+    virtual bool init() = 0;
 };
 
 }; // namespace eventloop;

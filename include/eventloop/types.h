@@ -4,7 +4,9 @@
 #include <memory>
 #include <functional>
 
+#include <event2/visibility.h>
 #include <event2/event.h>
+#include <event2/listener.h>
 
 namespace eventloop
 {
@@ -23,6 +25,12 @@ typedef
 typedef
     std::unique_ptr<event, std::function<void(event*)> >
     event_ptr
+;
+
+
+typedef
+    std::unique_ptr<evconnlistener, std::function<void(evconnlistener*)> >
+    evconnlistener_ptr
 ;
 
 
