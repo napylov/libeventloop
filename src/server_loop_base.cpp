@@ -1,5 +1,5 @@
 #include <string.h>
-#include "eventloop/server_loop.h"
+#include "eventloop/server_loop_base.h"
 
 namespace eventloop
 {
@@ -21,27 +21,27 @@ void evconnlistener_callback
             void *ptr
         )
 {
-    server_loop::call_callback
+    server_loop_base::call_callback
         (
             listener,
             socket,
             addr,
             len,
-            reinterpret_cast<server_loop::callback_accept_info*>(ptr)
+            reinterpret_cast<server_loop_base::callback_accept_info*>(ptr)
         )
     ;
 }
 
 
 
-server_loop::server_loop()
+server_loop_base::server_loop_base()
     : loop(), port( DEFAULT_PORT )
 {
     run_threads( DEFAULT_THREADS_COUNT );
 }
 
 
-server_loop::server_loop( uint16_t port_, int threads_count, timeval tv_ )
+server_loop_base::server_loop_base( uint16_t port_, int threads_count, timeval tv_ )
     : loop(), port( port_ )
 {
     if ( tv_.tv_sec != 0 && tv_.tv_usec != 0 )
@@ -53,13 +53,13 @@ server_loop::server_loop( uint16_t port_, int threads_count, timeval tv_ )
 }
 
 
-bool server_loop::init()
+bool server_loop_base::init()
 {
     return make_config() && make_base() && make_listener();
 }
 
 
-bool server_loop::make_listener()
+bool server_loop_base::make_listener()
 {
     struct sockaddr_in sin = {0};
     sin.sin_family = AF_INET;    /* работа с доменом IP-адресов */
@@ -86,7 +86,7 @@ bool server_loop::make_listener()
 }
 
 
-void server_loop::run_threads( int cnt )
+void server_loop_base::run_threads( int cnt )
 {
     for ( int i = 0; i < cnt; i++ )
     {
@@ -109,7 +109,7 @@ void server_loop::run_threads( int cnt )
 }
 
 
-server_loop::callback_accept_info* server_loop::make_callback_accept_info()
+server_loop_base::callback_accept_info* server_loop_base::make_callback_accept_info()
 {
     callback_accept_info* info = nullptr;
     try
@@ -119,7 +119,7 @@ server_loop::callback_accept_info* server_loop::make_callback_accept_info()
                             this,
                             std::bind
                             (
-                                &server_loop::on_accept,
+                                &server_loop_base::on_accept,
                                 this,
                                 std::placeholders::_1,
                                 std::placeholders::_2,
@@ -138,7 +138,7 @@ server_loop::callback_accept_info* server_loop::make_callback_accept_info()
 }
 
 
-void server_loop::on_accept
+void server_loop_base::on_accept
 (
         evutil_socket_t         fd,
         struct sockaddr         *addr,
@@ -154,7 +154,7 @@ void server_loop::on_accept
                 NULL,
                 std::bind
                 (
-                    &server_loop::on_client,
+                    &server_loop_base::on_client,
                     this,
                     std::placeholders::_1,
                     std::placeholders::_2,
@@ -163,16 +163,6 @@ void server_loop::on_accept
                 tv.get()
             )
     ;
-}
-
-
-void server_loop::process_thread_fn( std::atomic_bool &work_flag )
-{
-    while ( !work_flag.load() )
-    {
-        event_queue::item item = queue.pop();
-        process_data( item );
-    }
 }
 
 

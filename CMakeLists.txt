@@ -15,8 +15,7 @@ include_directories( ${INC_DIR} )
 set(
     SRC
     ${SRC_DIR}/loop.cpp
-    ${SRC_DIR}/server_loop.cpp
-    ${SRC_DIR}/event_queue.cpp
+    ${SRC_DIR}/server_loop_base.cpp
 )
 
 add_library(

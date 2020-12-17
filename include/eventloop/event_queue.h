@@ -9,16 +9,10 @@ namespace eventloop
 {
 
 
+template <class item>
 class event_queue
 {
 public:
-    // first is file descriptor, second is event
-    struct item
-    {
-        int     fd;
-        int     what;
-        void    *data;
-    };
 
 private:
     std::deque<item>                queue;
@@ -30,12 +24,52 @@ private:
     std::condition_variable         cv;
 
 public:
-    event_queue();
+    event_queue()
+    :   queue(),
+        mutex(),
+        mutex_for_cv(),
+        lock_for_cv( mutex_for_cv, std::defer_lock ),
+        cv()
+    {
+    }
+
     ~event_queue() = default;
 
-    void push(int fd, int what, void *custom_arg);
+    void push( item &&obj )
+    {
+        std::unique_lock<std::mutex> lock( mutex );
+
+        queue.emplace_back( obj );
+
+        lock.unlock();
+
+        cv.notify_one();
+    }
+
     // wait if empty
-    item pop();
+    item pop()
+    {
+        bool ok = false;
+        while ( !ok )
+        {
+            std::unique_lock<std::mutex> lock( mutex );
+
+            ok = !queue.empty();
+            if ( ok )
+            {
+                item result = queue.front();
+                queue.pop_front();
+                return result;
+            }
+
+            lock.unlock();
+
+            if ( !ok )
+                cv.wait( lock_for_cv );
+        }
+
+        return item();
+    }
 };
 
 

@@ -1,130 +1,57 @@
 #ifndef SERVER_LOOP_H
 #define SERVER_LOOP_H
 
-#include <map>
-#include <thread>
-#include <list>
-#include <atomic>
-
-#include "loop.h"
+#include "server_loop_base.h"
+#include "stdint.h"
 #include "event_queue.h"
+#include "event_queue_item.h"
 
 
 namespace eventloop
 {
 
 
-class server_loop : public loop
+template <typename q_item = event_queue_item>
+class server_loop : public server_loop_base
 {
-public:
-    static const short  DEFAULT_PORT            = 3000;
-    static const int    DEFAULT_THREADS_COUNT   = 4;
-
-public:
-    typedef std::function<
-                void(
-                        evutil_socket_t,
-                        struct sockaddr *,
-                        int,
-                        void *
-                )
-            >  callback_accept_fn
-    ;
-
-    struct callback_accept_info
-    {
-        server_loop         *obj;
-        callback_accept_fn  fn;
-        void                *arg;
-
-        callback_accept_info() = delete;
-        callback_accept_info( server_loop *obj_, callback_accept_fn fn_, void *arg_ )
-            : obj( obj_ ), fn( fn_ ), arg( arg_ ) {}
-        virtual ~callback_accept_info() = default;
-    };
-
-    typedef std::unique_ptr<timeval>                    timeval_ptr;
-
-    typedef std::unique_ptr<std::thread>                thread_ptr;
-    typedef std::pair<thread_ptr, std::unique_ptr<std::atomic_bool> >
-            thread_info
-    ;
-
 protected:
-    evconnlistener_ptr          listener;
-    std::map<int, event_ptr>    fd_events;
+    event_queue<q_item>     queue;
 
-    uint16_t                    port;
-    std::unique_ptr<timeval>    tv;
-
-    event_queue                 queue;
-
-    std::list<thread_info>       threads;
 
 public:
-    server_loop();
+    server_loop() : server_loop_base() {}
     server_loop
     (
             uint16_t port_,
-            int threads_count = DEFAULT_THREADS_COUNT,
+            int threads_count = server_loop_base::DEFAULT_THREADS_COUNT,
             timeval tv_ = {0,0}
-    );
+    )
+    : server_loop_base( port_, threads_count, tv_ )
+    {}
+
     virtual ~server_loop() = default;
 
-public:
-    inline static void call_callback
-        (
-            evconnlistener          *connlistener,
-            evutil_socket_t         fd,
-            struct sockaddr         *addr,
-            int                     sock_len,
-            callback_accept_info    *info
-        )
-    {
-        if (
-                info &&
-                info->obj &&
-                info->fn &&
-                connlistener == info->obj->listener.get()
-            )
-        {
-            info->fn( fd, addr, sock_len, info->arg );
-        }
-    }
-
-
 protected:
-    virtual bool make_listener();
-    virtual callback_accept_info* make_callback_accept_info();
-    void run_threads( int cnt );
-
-private:
-    virtual bool init();
-
-    virtual void on_accept
-    (
-            evutil_socket_t         fd,
-            struct sockaddr         *addr,
-            int                     sock_len,
-            void                    *arg
-    );
-
-
-    void on_client( evutil_socket_t fd, short what, void *arg )
+    virtual void on_client( evutil_socket_t fd, short what, void *arg )
     {
         if ( what & EV_READ )
-            queue.push( fd, what, arg );
+            queue.push( q_item( fd, what, arg ) );
         else if ( what & EV_CLOSED )
             fd_events.erase( fd );
     }
 
+    virtual void process_event( q_item &&item ) = 0;
 
-    void process_thread_fn( std::atomic_bool &work_flag );
-    virtual void process_data( event_queue::item &event_item ) = 0;
+    virtual void process_thread_fn( std::atomic_bool &work_flag )
+    {
+        while ( !work_flag.load() )
+        {
+            process_event( queue.pop() );
+        }
+    }
 };
 
 
-} // namespace eventloop
-
+}
 
 #endif // SERVER_LOOP_H
