@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 project(eventloop)
 
+enable_testing()
+
 set( SRC_DIR ${PROJECT_SOURCE_DIR}/src )
 set( DOC_DIR ${PROJECT_SOURCE_DIR}/doc )
 set( INC_DIR ${PROJECT_SOURCE_DIR}/include )

@@ -2,8 +2,6 @@ cmake_minimum_required(VERSION 3.0)
 
 project(eventloop_test)
 
-enable_testing()
-
 find_package( gtest )
 
 find_library( EVENT event )
