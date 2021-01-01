@@ -6,14 +6,19 @@ set( SRC_DIR ${PROJECT_SOURCE_DIR}/src )
 set( DOC_DIR ${PROJECT_SOURCE_DIR}/doc )
 set( INC_DIR ${PROJECT_SOURCE_DIR}/include )
 
+set( TEST_SUBDIR test )
+set( TEST_DIR ${PROJECT_SOURCE_DIR}/${TEST_SUBDIR} )
+
 set( CMAKE_CXX_FLAGS "-Wall -std=c++17" )
 
-find_library( stdc++ event )
+find_library( EVENT event )
+find_library( GTEST gtest )
+find_library( PTHREAD pthread )
 
 include_directories( ${INC_DIR} )
 
 set(
-    SRC
+    EVENTLOOP_SRC
     ${SRC_DIR}/loop.cpp
     ${SRC_DIR}/server_loop_base.cpp
 )
@@ -21,5 +26,15 @@ set(
 add_library(
     eventloop
     SHARED
-    ${SRC}
+    ${EVENTLOOP_SRC}
 )
+
+target_link_libraries(
+    eventloop
+#    ${CPPSTD}
+    ${EVENT}
+    ${GTEST}
+    ${PTHREAD}
+)
+
+add_subdirectory( test ${TEST_SUBDIR} )

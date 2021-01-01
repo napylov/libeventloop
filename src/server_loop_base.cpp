@@ -151,14 +151,12 @@ void server_loop_base::on_accept
             (
                 fd,
                 EV_READ | EV_CLOSED,
-                NULL,
                 std::bind
                 (
                     &server_loop_base::on_client,
                     this,
                     std::placeholders::_1,
-                    std::placeholders::_2,
-                    std::placeholders::_3
+                    std::placeholders::_2
                 ),
                 tv.get()
             )

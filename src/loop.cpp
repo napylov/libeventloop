@@ -89,12 +89,11 @@ bool loop::make_base()
 event_ptr loop::make_event(
                                 int fd,
                                 short what,
-                                void *arg,
                                 callback_fn fn,
                                 const timeval *tv
                            )
 {
-    loop::callback_info *info = make_callback_info( fn, arg );
+    loop::callback_info *info = make_callback_info( fn );
     if ( !info )
         return event_ptr();
 
@@ -112,12 +111,12 @@ event_ptr loop::make_event(
 }
 
 
-loop::callback_info *loop::make_callback_info( callback_fn fn, void *arg )
+loop::callback_info *loop::make_callback_info( callback_fn fn )
 {
     loop::callback_info *info = nullptr;
     try
     {
-        info = new loop::callback_info( this, fn, arg );
+        info = new loop::callback_info( fn );
     }
     catch ( std::bad_alloc & )
     {

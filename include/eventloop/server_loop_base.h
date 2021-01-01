@@ -106,7 +106,7 @@ private:
     );
 
 protected:
-    virtual void on_client( evutil_socket_t fd, short what, void *arg ) = 0;
+    virtual void on_client( evutil_socket_t fd, short what ) = 0;
     virtual void process_thread_fn( std::atomic_bool &work_flag ) = 0;
 };
 

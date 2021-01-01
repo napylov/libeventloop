@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "types.h"
+#include "custom_arg_base.h"
 
 namespace eventloop
 {
@@ -16,19 +17,18 @@ protected:
     event_base_ptr              base;
 
 public:
-    typedef std::function<void(int, short, void*)>  callback_fn;
+    typedef std::function<void(int, short)>  callback_fn;
 
     struct callback_info
     {
-        loop            *obj;
         callback_fn     fn;
-        void            *arg;
 
         callback_info() = delete;
-        callback_info( loop *obj_, callback_fn fn_, void *arg_ )
-            : obj( obj_ ), fn( fn_ ), arg( arg_ ) {}
+        callback_info( callback_fn fn_ )
+            : fn( fn_ ) {}
         virtual ~callback_info() = default;
     };
+
 
     static const int RUN_ERROR  = -1;
     static const int OK         = 0;
@@ -44,8 +44,8 @@ public:
 public:
     inline static void call_callback( int fd, short what, callback_info *info )
     {
-        if ( info && info->obj && info->fn )
-            info->fn(fd, what, info->arg);
+        if ( info && info->fn )
+            info->fn( fd, what );
     }
 
 
@@ -58,13 +58,16 @@ protected:
                         (
                             int fd,
                             short what,
-                            void *arg,
                             callback_fn fn,
                             const timeval *tv = nullptr
                         )
     ;
 
-    virtual callback_info   *make_callback_info( callback_fn fn_, void *arg_ );
+    virtual callback_info   *make_callback_info
+                            (
+                                callback_fn fn_
+                            )
+    ;
 
     virtual bool init() = 0;
 };
