@@ -9,7 +9,7 @@ namespace eventloop
 {
 
 
-template <class item>
+template <typename item>
 class event_queue
 {
 public:
@@ -40,6 +40,18 @@ public:
         std::unique_lock<std::mutex> lock( mutex );
 
         queue.emplace_back( obj );
+
+        lock.unlock();
+
+        cv.notify_one();
+    }
+
+
+    void push( const item &obj )
+    {
+        std::unique_lock<std::mutex> lock( mutex );
+
+        queue.push_back( obj );
 
         lock.unlock();
 
