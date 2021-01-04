@@ -23,8 +23,7 @@ public:
                 void(
                         evutil_socket_t,
                         struct sockaddr *,
-                        int,
-                        void *
+                        int
                 )
             >  callback_accept_fn
     ;
@@ -33,11 +32,10 @@ public:
     {
         server_loop_base    *obj;
         callback_accept_fn  fn;
-        void                *arg;
 
         callback_accept_info() = delete;
-        callback_accept_info( server_loop_base *obj_, callback_accept_fn fn_, void *arg_ )
-            : obj( obj_ ), fn( fn_ ), arg( arg_ ) {}
+        callback_accept_info( server_loop_base *obj_, callback_accept_fn fn_ )
+            : obj( obj_ ), fn( fn_ ) {}
         virtual ~callback_accept_info() = default;
     };
 
@@ -55,7 +53,7 @@ protected:
     uint16_t                    port;
     std::unique_ptr<timeval>    tv;
 
-    std::list<thread_info>       threads;
+    std::list<thread_info>      threads;
 
 public:
     server_loop_base();
@@ -84,7 +82,7 @@ public:
                 connlistener == info->obj->listener.get()
             )
         {
-            info->fn( fd, addr, sock_len, info->arg );
+            info->fn( fd, addr, sock_len );
         }
     }
 
@@ -97,12 +95,12 @@ protected:
 private:
     virtual bool init();
 
+protected:
     virtual void on_accept
     (
             evutil_socket_t         fd,
-            struct sockaddr         *addr,
-            int                     sock_len,
-            void                    *arg
+            const struct sockaddr   *addr,
+            int                     sock_len
     );
 
 protected:

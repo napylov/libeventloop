@@ -21,6 +21,7 @@ set(
     ${TEST_SRC_DIR}/test_loop.cpp
     ${TEST_SRC_DIR}/test_main.cpp
     ${TEST_SRC_DIR}/test_event_queue.cpp
+    ${TEST_SRC_DIR}/test_server_loop_base.cpp
 )
 
 

@@ -38,7 +38,7 @@ TEST_F( test_event_queue, test_pop_delay_if_queue_is_empty )
         std::launch::async,
         [&] ()  {
                     sleep( DELAY );
-                    queue->push( std::move( TEST_VALUE ) );
+                    queue->push( TEST_VALUE );
                 }
     );
 

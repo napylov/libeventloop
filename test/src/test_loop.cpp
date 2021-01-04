@@ -34,16 +34,6 @@ bool test_loop::test_make_event()
     if ( !ev )
         return false;
 
-    /*
-    bool result =
-            event_get_fd( ev.get() ) == TEST_FD         &&
-            event_get_events( ev.get() ) == TEST_FLAG
-    ;
-
-    if ( !result )
-        return false;
-    */
-
     event_callback_fn callback = event_get_callback( ev.get() );
     callback
             (

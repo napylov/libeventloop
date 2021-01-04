@@ -123,10 +123,8 @@ server_loop_base::callback_accept_info* server_loop_base::make_callback_accept_i
                                 this,
                                 std::placeholders::_1,
                                 std::placeholders::_2,
-                                std::placeholders::_3,
-                                std::placeholders::_4
-                            ),
-                            nullptr
+                                std::placeholders::_3
+                            )
                         )
         ;
     }
@@ -141,9 +139,8 @@ server_loop_base::callback_accept_info* server_loop_base::make_callback_accept_i
 void server_loop_base::on_accept
 (
         evutil_socket_t         fd,
-        struct sockaddr         *addr,
-        int                     sock_len,
-        void                    *arg
+        const struct sockaddr   *addr,
+        int                     sock_len
 )
 {
     fd_events[ fd ] =
