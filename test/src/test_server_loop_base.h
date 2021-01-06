@@ -7,11 +7,17 @@
 
 using namespace eventloop;
 
-class test_server_loop_base : public server_loop_base, public ::testing::Test
+class test_server_loop_base_run;
+
+
+class test_server_loop_base : public server_loop_base
 {
 public:
-    std::atomic_int    runned_threads;
-    bool               on_accept_called;
+    std::atomic_int     runned_threads;
+    bool                on_accept_called;
+    bool                on_client_called;
+
+    friend class test_server_loop_base_run;
 
 public:
     test_server_loop_base();
@@ -31,5 +37,19 @@ public:
     );
 
 };
+
+
+class test_server_loop_base_run : public ::testing::Test
+{
+public:
+    std::unique_ptr<test_server_loop_base>  tested_class;
+
+public:
+    test_server_loop_base_run() = default;
+
+    virtual void SetUp() override;
+    virtual void TearDown() override;
+};
+
 
 #endif // TEST_SERVER_LOOP_BASE_H

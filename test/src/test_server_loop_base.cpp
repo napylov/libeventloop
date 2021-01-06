@@ -2,7 +2,21 @@
 #include "test_server_loop_base.h"
 
 
-test_server_loop_base::test_server_loop_base() : runned_threads( 0 ), on_accept_called( false )
+void test_server_loop_base_run::SetUp()
+{
+    tested_class.reset( new test_server_loop_base );
+    tested_class->make_base();
+}
+
+
+void test_server_loop_base_run::TearDown()
+{
+    tested_class.reset();
+}
+
+
+test_server_loop_base::test_server_loop_base()
+    : runned_threads( 0 ), on_accept_called( false ), on_client_called( false )
 {
 }
 
@@ -82,12 +96,16 @@ bool test_server_loop_base::test_make_callback_accept_info()
 
 void test_server_loop_base::on_client( evutil_socket_t fd, short what )
 {
+    on_client_called = true;
 }
 
 
 void test_server_loop_base::process_thread_fn( std::atomic_bool &work_flag )
 {
     runned_threads++;
+
+    while ( work_flag.load() )
+        sleep( 1 );
 }
 
 
@@ -101,3 +119,27 @@ void test_server_loop_base::on_accept
     on_accept_called = true;
     server_loop_base::on_accept( fd, addr, sock_len );
 }
+
+
+TEST_F( test_server_loop_base_run, fn_run_threads )
+{
+    ASSERT_TRUE( tested_class->test_run_threads() );
+}
+
+
+TEST_F( test_server_loop_base_run, fn_on_accept )
+{
+    ASSERT_TRUE( tested_class->test_on_accept() );
+}
+
+
+TEST_F( test_server_loop_base_run, fn_make_callback_accept_info )
+{
+    ASSERT_TRUE( tested_class->test_make_callback_accept_info() );
+}
+
+TEST_F( test_server_loop_base_run, fn_call_callback )
+{
+    ASSERT_TRUE( tested_class->test_call_callback() );
+}
+

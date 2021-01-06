@@ -51,6 +51,7 @@ protected:
     std::map<int, event_ptr>    fd_events;
 
     uint16_t                    port;
+    int                         threads_count;
     std::unique_ptr<timeval>    tv;
 
     std::list<thread_info>      threads;
@@ -60,10 +61,10 @@ public:
     server_loop_base
     (
             uint16_t port_,
-            int threads_count = DEFAULT_THREADS_COUNT,
+            int threads_count_ = DEFAULT_THREADS_COUNT,
             timeval tv_ = {0,0}
     );
-    virtual ~server_loop_base() = default;
+    virtual ~server_loop_base();
 
 public:
     inline static void call_callback
@@ -92,7 +93,7 @@ protected:
     virtual callback_accept_info* make_callback_accept_info();
     void run_threads( int cnt );
 
-private:
+protected:
     virtual bool init();
 
 protected:

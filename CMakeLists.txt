@@ -11,7 +11,7 @@ set( INC_DIR ${PROJECT_SOURCE_DIR}/include )
 set( TEST_SUBDIR test )
 set( TEST_DIR ${PROJECT_SOURCE_DIR}/${TEST_SUBDIR} )
 
-set( CMAKE_CXX_FLAGS "-Wall -std=c++17" )
+set( CMAKE_CXX_FLAGS "-Wall -g -std=c++17" )
 
 find_library( EVENT event )
 find_library( GTEST gtest )
