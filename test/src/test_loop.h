@@ -9,7 +9,12 @@
 class test_loop : public eventloop::loop, public ::testing::Test
 {
 public:
-    test_loop() = default;
+    // For test_loop_obj_factory.
+    int arg0;
+    char arg1;
+public:
+    test_loop();
+    test_loop( int arg0_, char arg1_ );
     virtual ~test_loop() = default;
 
     //virtual void SetUp() override;

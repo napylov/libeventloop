@@ -11,36 +11,25 @@ namespace eventloop
 
 class loop_obj_factory
 {
-    template
+public:
+    template<typename obj_type, typename ... arg_types>
+    static
+    std::unique_ptr
+    <
+        typename std::enable_if
         <
-            typename obj_type,
-            std::enable_if<
-                std::is_base_of<loop, obj_type>::value,
-                obj_type
-            >
-        >
-    obj_type* make()
+            std::is_base_of<loop, obj_type>::value,
+            obj_type
+        >::type
+    >
+    make( arg_types ... args )
     {
-        obj_type *obj = new obj_type;
-        obj->init();
+        std::unique_ptr<obj_type> obj = std::make_unique<obj_type>( args ... );
+        if ( !obj->init() )
+            obj.reset();
+
+        return obj;
     }
-
-
-    template
-        <
-            typename obj_type,
-            std::enable_if<
-                std::is_base_of<loop, obj_type>::value,
-                obj_type
-            >,
-            typename ... arg_types
-        >
-    obj_type* make_with_args( arg_types ... args )
-    {
-        obj_type *obj = new obj_type( args ... );
-        obj->init();
-    }
-
 };
 
 

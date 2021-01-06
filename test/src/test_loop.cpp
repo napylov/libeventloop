@@ -2,6 +2,25 @@
 
 using namespace eventloop;
 
+
+test_loop::test_loop()
+:   eventloop::loop(),
+    ::testing::Test(),
+    arg0( 0 ),
+    arg1( 0 )
+{
+}
+
+
+test_loop::test_loop( int arg0_, char arg1_ )
+:   eventloop::loop(),
+    ::testing::Test(),
+    arg0( arg0_ ),
+    arg1( arg1_ )
+{
+}
+
+
 bool test_loop::test_make_config()
 {
     return make_config();
