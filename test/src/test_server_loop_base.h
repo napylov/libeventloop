@@ -28,7 +28,7 @@ public:
     bool test_make_callback_accept_info();
 
     virtual void on_client( evutil_socket_t fd, short what ) override;
-    virtual void process_thread_fn( std::atomic_bool &work_flag ) override;
+    virtual void process_thread_fn() override;
     virtual void on_accept
     (
             evutil_socket_t         fd,

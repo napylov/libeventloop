@@ -27,7 +27,7 @@ test_loop_obj_factory::test_loop_obj_factory()
 
 TEST_F( test_loop_obj_factory, test_make )
 {
-    auto loop_ptr = loop_obj_factory::make<loop_for_test_factory>();
+    auto loop_ptr = loop_obj_factory::make<::loop_for_test_factory>( false );
     ASSERT_TRUE( loop_ptr.operator bool() );
 }
 
@@ -37,7 +37,7 @@ TEST_F( test_loop_obj_factory, test_make_with_args )
     static const int TEST_INT = 100;
     static const char TEST_CHAR = 'H';
 
-    auto loop_ptr = loop_obj_factory::make<loop_for_test_factory>( TEST_INT, TEST_CHAR );
+    auto loop_ptr = loop_obj_factory::make<::loop_for_test_factory>( false, TEST_INT, TEST_CHAR );
     ASSERT_TRUE( loop_ptr.operator bool() );
     ASSERT_TRUE( loop_ptr->arg0 == TEST_INT );
     ASSERT_TRUE( loop_ptr->arg1 == TEST_CHAR );

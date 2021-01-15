@@ -9,6 +9,7 @@
 namespace eventloop
 {
 
+
 class loop
 {
 protected:
@@ -29,16 +30,19 @@ public:
     };
 
 
-    static const int RUN_ERROR  = -1;
-    static const int OK         = 0;
-    static const int NO_EVENTS  = 1;
+    enum run_result : int
+    {
+        RUN_ERROR  = -1,
+        OK         = 0,
+        NO_EVENTS  = 1
+    };
 
 public:
     loop() = default;
     virtual ~loop() = default;
 
     int run();
-    bool stop();
+    virtual bool stop();
 
 public:
     inline static void call_callback( int fd, short what, callback_info *info )
@@ -68,6 +72,7 @@ protected:
                             )
     ;
 
+public:
     virtual bool init() = 0;
 };
 

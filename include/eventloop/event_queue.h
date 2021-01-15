@@ -1,6 +1,8 @@
 #ifndef EVENT_QUEUE_H
 #define EVENT_QUEUE_H
 
+#include <atomic>
+#include <iostream>
 #include <deque>
 #include <mutex>
 #include <condition_variable>
@@ -20,16 +22,17 @@ private:
     std::mutex                      mutex;
 
     std::mutex                      mutex_for_cv;
-    std::unique_lock<std::mutex>    lock_for_cv;
     std::condition_variable         cv;
+
+    std::atomic_bool                work_flag;
 
 public:
     event_queue()
     :   queue(),
         mutex(),
         mutex_for_cv(),
-        lock_for_cv( mutex_for_cv, std::defer_lock ),
-        cv()
+        cv(),
+        work_flag( true )
     {
     }
 
@@ -43,7 +46,7 @@ public:
 
         lock.unlock();
 
-        cv.notify_one();
+        notify();
     }
 
 
@@ -55,14 +58,14 @@ public:
 
         lock.unlock();
 
-        cv.notify_one();
+        notify();
     }
 
     // wait if empty
     item pop()
     {
         bool ok = false;
-        while ( !ok )
+        while ( !ok && work_flag.load() )
         {
             std::unique_lock<std::mutex> lock( mutex );
 
@@ -77,10 +80,32 @@ public:
             lock.unlock();
 
             if ( !ok )
-                cv.wait( lock_for_cv );
+            {
+                std::unique_lock<std::mutex> lk( mutex_for_cv );
+                cv.wait_for( lk, std::chrono::seconds(1) );
+            }
         }
 
         return item();
+    }
+
+
+    void set_work_flag( bool value )
+    {
+        work_flag.store( value );
+        if ( !value )
+        {
+            std::lock_guard<std::mutex> lk( mutex_for_cv );
+            cv.notify_all();
+        }
+    }
+
+
+private:
+    inline void notify()
+    {
+        std::lock_guard<std::mutex> lk( mutex_for_cv );
+        cv.notify_one();
     }
 };
 

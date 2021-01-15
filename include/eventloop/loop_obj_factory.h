@@ -22,11 +22,16 @@ public:
             obj_type
         >::type
     >
-    make( arg_types ... args )
+    make( bool run_immediate, arg_types ... args )
     {
         std::unique_ptr<obj_type> obj = std::make_unique<obj_type>( args ... );
         if ( !obj->init() )
             obj.reset();
+        else if ( run_immediate )
+        {
+            if ( obj->run() != loop::run_result::OK )
+                obj.reset();
+        }
 
         return obj;
     }

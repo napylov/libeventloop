@@ -42,9 +42,6 @@ public:
     typedef std::unique_ptr<timeval>                    timeval_ptr;
 
     typedef std::unique_ptr<std::thread>                thread_ptr;
-    typedef std::pair<thread_ptr, std::unique_ptr<std::atomic_bool> >
-            thread_info
-    ;
 
 protected:
     evconnlistener_ptr          listener;
@@ -54,7 +51,8 @@ protected:
     int                         threads_count;
     std::unique_ptr<timeval>    tv;
 
-    std::list<thread_info>      threads;
+    std::list<thread_ptr>       threads;
+    bool                        work_flag;
 
 public:
     server_loop_base();
@@ -91,10 +89,13 @@ public:
 protected:
     virtual bool make_listener();
     virtual callback_accept_info* make_callback_accept_info();
-    void run_threads( int cnt );
 
-protected:
-    virtual bool init();
+public:
+    void run_threads( int cnt );
+    virtual void stop_threads();
+
+public:
+    virtual bool init() override;
 
 protected:
     virtual void on_accept
@@ -106,7 +107,7 @@ protected:
 
 protected:
     virtual void on_client( evutil_socket_t fd, short what ) = 0;
-    virtual void process_thread_fn( std::atomic_bool &work_flag ) = 0;
+    virtual void process_thread_fn() = 0;
 };
 
 

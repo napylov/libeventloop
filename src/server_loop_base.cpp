@@ -35,13 +35,13 @@ void evconnlistener_callback
 
 
 server_loop_base::server_loop_base()
-    : loop(), port( DEFAULT_PORT ), threads_count( DEFAULT_THREADS_COUNT )
+    : loop(), port( DEFAULT_PORT ), threads_count( DEFAULT_THREADS_COUNT ), work_flag( false )
 {
 }
 
 
 server_loop_base::server_loop_base( uint16_t port_, int threads_count_, timeval tv_ )
-    : loop(), port( port_ ), threads_count( threads_count_ )
+    : loop(), port( port_ ), threads_count( threads_count_ ), work_flag( false )
 {
     if ( tv_.tv_sec != 0 && tv_.tv_usec != 0 )
     {
@@ -53,11 +53,7 @@ server_loop_base::server_loop_base( uint16_t port_, int threads_count_, timeval 
 
 server_loop_base::~server_loop_base()
 {
-    for ( auto &it : threads )
-        it.second->store( false );
-
-    for ( auto &it : threads )
-        it.first->join();
+    stop_threads();
 }
 
 
@@ -100,23 +96,28 @@ bool server_loop_base::make_listener()
 
 void server_loop_base::run_threads( int cnt )
 {
+    work_flag = true;
     for ( int i = 0; i < cnt; i++ )
     {
-        thread_info info =
-            std::make_pair
-            (
-                thread_ptr(),
-                std::unique_ptr<std::atomic_bool>( new std::atomic_bool( true ) )
-            )
-        ;
-        auto it = threads.emplace( threads.end(), std::move( info ) );
-        it->first.reset
-            (
-                new std::thread
-                    ( [&] () { this->process_thread_fn( *(it->second.get()) ); } )
-            )
+        threads.emplace_back
+                (
+                    std::unique_ptr<std::thread>(
+                        new std::thread( [&] () { this->process_thread_fn(); } )
+                    )
+                )
         ;
     }
+}
+
+
+void server_loop_base::stop_threads()
+{
+    work_flag = false;
+
+    for ( auto &it : threads )
+        it->join();
+
+    threads.clear();
 }
 
 

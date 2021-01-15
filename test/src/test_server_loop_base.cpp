@@ -100,11 +100,11 @@ void test_server_loop_base::on_client( evutil_socket_t fd, short what )
 }
 
 
-void test_server_loop_base::process_thread_fn( std::atomic_bool &work_flag )
+void test_server_loop_base::process_thread_fn()
 {
     runned_threads++;
 
-    while ( work_flag.load() )
+    while ( work_flag )
         sleep( 1 );
 }
 

@@ -12,7 +12,7 @@ struct event_queue_item
     int     what;
     void    *data;
 
-    event_queue_item() = delete;
+    event_queue_item() : fd( -1 ), what( 0 ), data( nullptr ) {}
     event_queue_item( int fd_, int what_, void *data_ )
         : fd( fd_ ), what( what_ ), data( data_ )
         {}

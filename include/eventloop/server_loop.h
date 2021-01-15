@@ -1,6 +1,8 @@
 #ifndef SERVER_LOOP_H
 #define SERVER_LOOP_H
 
+#include <iostream>
+
 #include "server_loop_base.h"
 #include "stdint.h"
 #include "event_queue.h"
@@ -29,22 +31,43 @@ public:
     : server_loop_base( port_, threads_count, tv_ )
     {}
 
-    virtual ~server_loop() = default;
+    virtual ~server_loop()
+    {
+        stop_threads();
+    }
+
+public:
+    virtual bool stop() override
+    {
+        stop_threads();
+        return event_base_loopexit( base.get(), nullptr ) != -1;
+    }
+
+    virtual void stop_threads() override
+    {
+        work_flag = false;
+        queue.set_work_flag( false );
+
+        for ( auto &it : threads )
+            it->join();
+
+        threads.clear();
+    }
 
 protected:
-    virtual void on_client( evutil_socket_t fd, short what, void *arg )
+    virtual void on_client( evutil_socket_t fd, short what )
     {
         if ( what & EV_READ )
-            queue.push( q_item( fd, what, arg ) );
+            queue.push( q_item( fd, what, nullptr ) );
         else if ( what & EV_CLOSED )
             fd_events.erase( fd );
     }
 
     virtual void process_event( q_item &&item ) = 0;
 
-    virtual void process_thread_fn( std::atomic_bool &work_flag )
+    virtual void process_thread_fn()
     {
-        while ( !work_flag.load() )
+        while ( work_flag )
         {
             process_event( queue.pop() );
         }

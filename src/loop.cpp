@@ -49,15 +49,13 @@ static void event_callback( int fd, short flags, void *arg )
 
 int loop::run()
 {
-    if ( !init() )
-        return -1;
     return event_base_dispatch( base.get() );
 }
 
 
 bool loop::stop()
 {
-    return event_base_loopbreak( base.get() ) != -1;
+    return event_base_loopexit( base.get(), nullptr ) != -1;
 }
 
 
