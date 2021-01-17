@@ -69,10 +69,10 @@ bool server_loop_base::init()
 
 bool server_loop_base::make_listener()
 {
-    struct sockaddr_in sin = {0};
-    sin.sin_family = AF_INET;    /* работа с доменом IP-адресов */
-    sin.sin_addr.s_addr = INADDR_ANY;  /* принимать запросы с любых адресов */
-    sin.sin_port = htons( port );
+    struct sockaddr_in6 sin = {0};
+    sin.sin6_family = AF_INET6;    /* работа с доменом IP-адресов */
+    sin.sin6_addr = IN6ADDR_ANY_INIT;  /* принимать запросы с любых адресов */
+    sin.sin6_port = htons( port );
 
     listener = evconnlistener_ptr
                 (

@@ -74,6 +74,29 @@ bool test_server_loop::test_connect_ipv4()
 
 bool test_server_loop::test_connect_ipv6()
 {
+    fd_ipv6 = socket( AF_INET6, SOCK_STREAM, 0 );
+    if ( fd_ipv6 < 0 )
+        return false;
+
+    struct sockaddr_in6 serv_addr = { 0 };
+
+    serv_addr.sin6_family = AF_INET6;
+    serv_addr.sin6_port = htons( DEFAULT_PORT );
+
+    if( inet_pton(AF_INET6, "::1", &serv_addr.sin6_addr) <= 0 )
+    {
+        perror( "Error: inet_pton error occured (IPv6)\n" );
+        return false;
+    }
+
+    if( connect(fd_ipv6, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+    {
+        perror( "Error : Connect Failed (IPv6)\n");
+        return false;
+    }
+
+    std::cout << "Connected successfull (IPv6).\n";
+
     return true;
 }
 
@@ -117,6 +140,33 @@ TEST_F( test_server_loop_run, fn_connect_ipv4 )
         [&] ()  {
                     sleep( 1 );
                     success = tested_class->test_connect_ipv4();
+                    ASSERT_TRUE( tested_class->stop() );
+                    sleep( 1 );
+                }
+    );
+
+    if ( tested_class )
+    {
+        ASSERT_TRUE( tested_class->run() == loop::run_result::OK );
+    }
+
+    ASSERT_TRUE( success );
+}
+
+
+
+TEST_F( test_server_loop_run, fn_connect_ipv6 )
+{
+    ASSERT_TRUE( tested_class.operator bool() );
+
+    bool success = false;
+
+    std::async
+    (
+        std::launch::async,
+        [&] ()  {
+                    sleep( 1 );
+                    success = tested_class->test_connect_ipv6();
                     ASSERT_TRUE( tested_class->stop() );
                     sleep( 1 );
                 }
