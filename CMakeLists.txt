@@ -5,6 +5,7 @@ project(eventloop)
 enable_testing()
 
 set( SRC_DIR ${PROJECT_SOURCE_DIR}/src )
+
 set( DOC_DIR ${PROJECT_SOURCE_DIR}/doc )
 set( INC_DIR ${PROJECT_SOURCE_DIR}/include )
 
@@ -23,6 +24,7 @@ set(
     EVENTLOOP_SRC
     ${SRC_DIR}/loop.cpp
     ${SRC_DIR}/server_loop_base.cpp
+    ${SRC_DIR}/fd_factory.cpp
 )
 
 add_library(

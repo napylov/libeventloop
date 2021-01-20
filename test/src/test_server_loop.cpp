@@ -6,6 +6,7 @@
 
 #include "test_server_loop.h"
 #include "eventloop/loop_obj_factory.h"
+#include "eventloop/fd_factory.h"
 
 
 test_server_loop::test_server_loop()
@@ -45,28 +46,12 @@ void test_server_loop::process_event( event_queue_item &&item )
 
 bool test_server_loop::test_connect_ipv4()
 {
-    fd_ipv4 = socket( AF_INET, SOCK_STREAM, 0 );
-    if ( fd_ipv4 < 0 )
-        return false;
+    fd_ipv4 = fd_factory::connect( "localhost", DEFAULT_PORT, AF_INET );
 
-    struct sockaddr_in serv_addr = { 0 };
-
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons( DEFAULT_PORT );
-
-    if( inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0 )
-    {
-        perror( "Error: inet_pton error occured\n" );
-        return false;
-    }
-
-    if( connect(fd_ipv4, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-    {
-        perror( "Error : Connect Failed\n");
-        return false;
-    }
-
-    std::cout << "Connected successfull.\n";
+    if ( fd_ipv4 != fd_factory::INVALID_FD )
+        std::cout << "Connected successfull.\n";
+    else
+        std::cout << "Connected failed.\n";
 
     return true;
 }
@@ -74,30 +59,15 @@ bool test_server_loop::test_connect_ipv4()
 
 bool test_server_loop::test_connect_ipv6()
 {
-    fd_ipv6 = socket( AF_INET6, SOCK_STREAM, 0 );
-    if ( fd_ipv6 < 0 )
-        return false;
+    fd_ipv6 = fd_factory::connect( "localhost", DEFAULT_PORT, AF_INET6 );
 
-    struct sockaddr_in6 serv_addr = { 0 };
-
-    serv_addr.sin6_family = AF_INET6;
-    serv_addr.sin6_port = htons( DEFAULT_PORT );
-
-    if( inet_pton(AF_INET6, "::1", &serv_addr.sin6_addr) <= 0 )
-    {
-        perror( "Error: inet_pton error occured (IPv6)\n" );
-        return false;
-    }
-
-    if( connect(fd_ipv6, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
-    {
-        perror( "Error : Connect Failed (IPv6)\n");
-        return false;
-    }
-
-    std::cout << "Connected successfull (IPv6).\n";
+    if ( fd_ipv6 != fd_factory::INVALID_FD )
+        std::cout << "Connected successfull IPv6.\n";
+    else
+        std::cout << "Connected failed IPv6.\n";
 
     return true;
+
 }
 
 

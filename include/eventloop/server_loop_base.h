@@ -15,8 +15,8 @@ namespace eventloop
 class server_loop_base : public loop
 {
 public:
-    static const short  DEFAULT_PORT            = 3000;
-    static const int    DEFAULT_THREADS_COUNT   = 4;
+    static const uint16_t   DEFAULT_PORT            = 3000;
+    static const int        DEFAULT_THREADS_COUNT   = 4;
 
 public:
     typedef std::function<
