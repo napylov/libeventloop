@@ -34,6 +34,9 @@ public:
     }
 
 
+    static bool set_fd_non_block( int fd );
+
+
     template <class T>
     static bool init_sigset( sigset_t *set, const T &container )
     {

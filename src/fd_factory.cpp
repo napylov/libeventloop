@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <iostream>
+#include <fcntl.h>
 
 #include "eventloop/fd_factory.h"
 #include "eventloop/debug_print.h"
@@ -34,6 +35,12 @@ int fd_factory::connect( const char *host, uint16_t port, int proto )
         return INVALID_FD;
 
     DEBUG_CODE( std::cout << "fd OK\n"; );
+
+    if ( !set_fd_non_block( fd ) )
+    {
+        DEBUG_CODE( std::cout << "can't set O_NONBLOCK\n"; );
+        return false;
+    }
 
     addrinfo_ptr info = get_addrinfo( host, proto );
     addrinfo *cur_info = info.get();
@@ -68,4 +75,14 @@ int fd_factory::connect( const char *host, uint16_t port, int proto )
     }
 
     return fd;
+}
+
+
+bool fd_factory::set_fd_non_block( int fd )
+{
+    int flags = fcntl( fd, F_GETFL );
+    if ( flags < 0 )
+        return false;
+
+    return fcntl( fd, F_SETFL, flags | O_NONBLOCK ) != -1;
 }
