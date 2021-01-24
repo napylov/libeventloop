@@ -35,8 +35,6 @@ bool test_loop::test_make_base()
 
 bool test_loop::test_make_event()
 {
-
-
     static const int                TEST_FD     = 0;
     static const short              TEST_FLAG   = EV_READ;
 

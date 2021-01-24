@@ -1,5 +1,11 @@
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
 #include <string.h>
+
 #include "eventloop/server_loop_base.h"
+
+#include <iostream>
 
 namespace eventloop
 {
@@ -59,10 +65,16 @@ server_loop_base::~server_loop_base()
 
 bool server_loop_base::init()
 {
-    if ( !(make_config() && make_base() && make_listener()) )
+    if ( !(make_config() && make_base() && make_listener() && init_custom_events()) )
         return false;
     run_threads( threads_count );
 
+    return true;
+}
+
+
+bool server_loop_base::init_custom_events()
+{
     return true;
 }
 
@@ -150,6 +162,30 @@ server_loop_base::callback_accept_info* server_loop_base::make_callback_accept_i
 }
 
 
+std::string server_loop_base::get_ip_str(const struct sockaddr *sa)
+{
+    static const int BUF_SIZE = 1023;
+    char s[ BUF_SIZE + 1 ] = { 0 };
+    switch(sa->sa_family) {
+        case AF_INET:
+            inet_ntop(AF_INET, &(((struct sockaddr_in *)sa)->sin_addr),
+                    s, BUF_SIZE);
+            break;
+
+        case AF_INET6:
+            inet_ntop(AF_INET6, &(((struct sockaddr_in6 *)sa)->sin6_addr),
+                    s, BUF_SIZE);
+            break;
+
+        default:
+            break;
+    }
+
+    return std::string(s);
+}
+
+
+
 void server_loop_base::on_accept
 (
         evutil_socket_t         fd,
@@ -157,6 +193,10 @@ void server_loop_base::on_accept
         int                     sock_len
 )
 {
+    std::cout << __PRETTY_FUNCTION__ << "\n";
+    std::cout << "fd [" << fd << "]\n";
+    std::cout << "address [" << get_ip_str( addr ) << "]\n";
+
     fd_events[ fd ] =
         make_event
             (
@@ -164,7 +204,7 @@ void server_loop_base::on_accept
                 EV_READ | EV_CLOSED,
                 std::bind
                 (
-                    &server_loop_base::on_client,
+                    &server_loop_base::call_on_client,
                     this,
                     std::placeholders::_1,
                     std::placeholders::_2
