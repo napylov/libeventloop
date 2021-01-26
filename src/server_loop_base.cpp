@@ -7,6 +7,8 @@
 
 #include <iostream>
 
+#include "eventloop/debug_print.h"
+
 namespace eventloop
 {
 
@@ -193,9 +195,11 @@ void server_loop_base::on_accept
         int                     sock_len
 )
 {
-    std::cout << __PRETTY_FUNCTION__ << "\n";
-    std::cout << "fd [" << fd << "]\n";
-    std::cout << "address [" << get_ip_str( addr ) << "]\n";
+    DEBUG_CODE( \
+        std::cout << __PRETTY_FUNCTION__ << "\n"; \
+        std::cout << "fd [" << fd << "]\n"; \
+        std::cout << "address [" << get_ip_str( addr ) << "]\n"; \
+    );
 
     fd_events[ fd ] =
         make_event
