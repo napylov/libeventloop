@@ -8,6 +8,7 @@
 #include "event_queue.h"
 #include "event_queue_item.h"
 
+#include "debug_print.h"
 
 namespace eventloop
 {
@@ -40,7 +41,7 @@ public:
     virtual bool stop() override
     {
         stop_threads();
-        std::cout << "Try loopexit\n";
+        //DEBUG_CODE( std::cout << "Try loopexit\n" );
         return event_base_loopexit( base.get(), nullptr ) != -1;
     }
 
@@ -52,7 +53,7 @@ public:
         for ( auto &it : threads )
             it->join();
 
-        std::cout << "stop_threads(): stopped\n";
+        //DEBUG_CODE( std::cout << "stop_threads(): stopped\n" );
 
         threads.clear();
     }
@@ -61,7 +62,7 @@ protected:
     virtual void on_client( evutil_socket_t fd, short what )
     {
         std::cout << __PRETTY_FUNCTION__ << "\n";
-        std::cout << "DEBUG fd[" << fd << "] what [" << what << "]\n";
+        //DEBUG_CODE( std::cout << "DEBUG fd[" << fd << "] what [" << what << "]\n" );
         if ( what & EV_READ )
             queue.push( q_item( fd, what, nullptr ) );
         else if ( what & EV_CLOSED )
@@ -76,7 +77,7 @@ protected:
         {
             process_event( queue.pop() );
         }
-        std::cout << __PRETTY_FUNCTION__ << " FINISHED\n";
+        //DEBUG_CODE( std::cout << __PRETTY_FUNCTION__ << " FINISHED\n" );
     }
 };
 

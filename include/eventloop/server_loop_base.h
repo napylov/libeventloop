@@ -98,6 +98,9 @@ public:
     virtual bool init() override;
     virtual bool init_custom_events();
 
+public:
+    static std::string get_ip_str( const struct sockaddr *sa );
+
 protected:
     virtual void on_accept
     (
@@ -114,8 +117,6 @@ protected:
 
     virtual void on_client( evutil_socket_t fd, short what ) = 0;
     virtual void process_thread_fn() = 0;
-
-    std::string get_ip_str(const struct sockaddr *sa);
 };
 
 

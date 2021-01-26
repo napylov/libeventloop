@@ -82,8 +82,8 @@ bool server_loop_base::init_custom_events()
 bool server_loop_base::make_listener()
 {
     struct sockaddr_in6 sin = {0};
-    sin.sin6_family = AF_INET6;    /* работа с доменом IP-адресов */
-    sin.sin6_addr = IN6ADDR_ANY_INIT;  /* принимать запросы с любых адресов */
+    sin.sin6_family = AF_INET6;
+    sin.sin6_addr = IN6ADDR_ANY_INIT;
     sin.sin6_port = htons( port );
 
     listener = evconnlistener_ptr
@@ -162,9 +162,9 @@ server_loop_base::callback_accept_info* server_loop_base::make_callback_accept_i
 }
 
 
-std::string server_loop_base::get_ip_str(const struct sockaddr *sa)
+std::string server_loop_base::get_ip_str( const struct sockaddr *sa )
 {
-    static const int BUF_SIZE = 1023;
+    static const int BUF_SIZE = 255;
     char s[ BUF_SIZE + 1 ] = { 0 };
     switch(sa->sa_family) {
         case AF_INET:

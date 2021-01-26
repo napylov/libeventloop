@@ -34,12 +34,10 @@ int fd_factory::connect( const char *host, uint16_t port, int proto )
     if ( fd == INVALID_FD )
         return INVALID_FD;
 
-    //DEBUG_CODE( std::cout << "fd OK\n"; );
-
     if ( !set_fd_non_block( fd ) )
     {
-        //DEBUG_CODE( std::cout << "can't set O_NONBLOCK\n"; );
-        return false;
+        ::close( fd );
+        return INVALID_FD;
     }
 
     addrinfo_ptr info = get_addrinfo( host, proto );
@@ -50,20 +48,17 @@ int fd_factory::connect( const char *host, uint16_t port, int proto )
     {
         if ( cur_info->ai_family == AF_INET )
         {
-            //DEBUG_CODE( std::cout << "AF_INET\n"; );
             (reinterpret_cast<sockaddr_in*>( cur_info->ai_addr ))->sin_port =
                 htons( port )
             ;
         }
         else
         {
-            //DEBUG_CODE( std::cout << "AF_INET6\n"; );
             (reinterpret_cast<sockaddr_in6*>( cur_info->ai_addr ))->sin6_port =
                 htons( port )
             ;
         }
         success = ::connect( fd, cur_info->ai_addr, cur_info->ai_addrlen ) == 0;
-        //DEBUG_CODE( std::cout << "success: " << success << "\n"; );
 
         cur_info = cur_info->ai_next;
     }
