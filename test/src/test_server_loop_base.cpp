@@ -94,7 +94,7 @@ bool test_server_loop_base::test_make_callback_accept_info()
 }
 
 
-void test_server_loop_base::on_client( evutil_socket_t fd, short what )
+void test_server_loop_base::on_client( evutil_socket_t fd, short what, const std::nullptr_t & )
 {
     on_client_called = true;
 }

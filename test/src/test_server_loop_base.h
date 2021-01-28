@@ -10,7 +10,7 @@ using namespace eventloop;
 class test_server_loop_base_run;
 
 
-class test_server_loop_base : public server_loop_base
+class test_server_loop_base : public server_loop_base<std::nullptr_t>
 {
 public:
     std::atomic_int     runned_threads;
@@ -27,7 +27,7 @@ public:
     bool test_call_callback();
     bool test_make_callback_accept_info();
 
-    virtual void on_client( evutil_socket_t fd, short what ) override;
+    virtual void on_client( evutil_socket_t fd, short what, const std::nullptr_t & ) override;
     virtual void process_thread_fn() override;
     virtual void on_accept
     (

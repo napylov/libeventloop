@@ -14,22 +14,22 @@ namespace eventloop
 {
 
 
-template <typename q_item = event_queue_item>
-class server_loop : public server_loop_base
+template <typename custom_data_t, typename q_item>
+class server_loop : public server_loop_base<custom_data_t>
 {
 protected:
     event_queue<q_item>     queue;
 
 
 public:
-    server_loop() : server_loop_base() {}
+    server_loop() : server_loop_base<custom_data_t>() {}
     server_loop
     (
             uint16_t port_,
-            int threads_count = server_loop_base::DEFAULT_THREADS_COUNT,
+            int threads_count = server_loop_base<custom_data_t>::DEFAULT_THREADS_COUNT,
             timeval tv_ = {0,0}
     )
-    : server_loop_base( port_, threads_count, tv_ )
+    : server_loop_base<custom_data_t>( port_, threads_count, tv_ )
     {}
 
     virtual ~server_loop()
@@ -42,38 +42,38 @@ public:
     {
         stop_threads();
         //DEBUG_CODE( std::cout << "Try loopexit\n" );
-        return event_base_loopexit( base.get(), nullptr ) != -1;
+        return event_base_loopexit( this->base.get(), nullptr ) != -1;
     }
 
     virtual void stop_threads() override
     {
-        work_flag = false;
+        this->work_flag = false;
         queue.set_work_flag( false );
 
-        for ( auto &it : threads )
+        for ( auto &it : this->threads )
             it->join();
 
         //DEBUG_CODE( std::cout << "stop_threads(): stopped\n" );
 
-        threads.clear();
+        this->threads.clear();
     }
 
 protected:
-    virtual void on_client( evutil_socket_t fd, short what )
+    virtual void on_client( evutil_socket_t fd, short what, const custom_data_t & ) override
     {
         std::cout << __PRETTY_FUNCTION__ << "\n";
         //DEBUG_CODE( std::cout << "DEBUG fd[" << fd << "] what [" << what << "]\n" );
         if ( what & EV_READ )
             queue.push( q_item( fd, what, nullptr ) );
         else if ( what & EV_CLOSED )
-            fd_events.erase( fd );
+            this->fd_events.erase( fd );
     }
 
     virtual void process_event( q_item &&item ) = 0;
 
     virtual void process_thread_fn()
     {
-        while ( work_flag )
+        while ( this->work_flag )
         {
             process_event( queue.pop() );
         }

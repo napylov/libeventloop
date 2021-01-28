@@ -140,7 +140,7 @@ public:
     int send_string( const std::string &str )
     {
         std::cout << __PRETTY_FUNCTION__ << "\n";
-        int fd = fd_factory::connect( "localhost", server_loop_base::DEFAULT_PORT, AF_INET );
+        int fd = fd_factory::connect( "localhost", server_loop_base<tsl_custom>::DEFAULT_PORT, AF_INET );
         if ( fd < 0 )
             return false;
 
@@ -180,7 +180,7 @@ TEST_F( test_server_loop_run, fn_connect_ipv4 )
 
     if ( tested_class )
     {
-        ASSERT_TRUE( tested_class->run() == loop::run_result::OK );
+        ASSERT_TRUE( tested_class->run() == loop<tsl_custom>::run_result::OK );
     }
 
     ASSERT_TRUE( success );
@@ -207,7 +207,7 @@ TEST_F( test_server_loop_run, fn_connect_ipv6 )
 
     if ( tested_class )
     {
-        ASSERT_TRUE( tested_class->run() == loop::run_result::OK );
+        ASSERT_TRUE( tested_class->run() == loop<std::nullptr_t>::run_result::OK );
     }
 
     ASSERT_TRUE( success );
@@ -258,7 +258,7 @@ TEST_F( test_server_loop_run, fn_on_client )
     if ( tested_class )
     {
         std::cout << "RUN\n";
-        ASSERT_TRUE( tested_class->run() == loop::run_result::OK );
+        ASSERT_TRUE( tested_class->run() == loop<std::nullptr_t>::run_result::OK );
         std::cout << "STOP\n";
     }
 

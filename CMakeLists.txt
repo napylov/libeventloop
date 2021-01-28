@@ -22,8 +22,6 @@ include_directories( ${INC_DIR} )
 
 set(
     EVENTLOOP_SRC
-    ${SRC_DIR}/loop.cpp
-    ${SRC_DIR}/server_loop_base.cpp
     ${SRC_DIR}/fd_factory.cpp
 )
 
@@ -35,7 +33,6 @@ add_library(
 
 target_link_libraries(
     eventloop
-#    ${CPPSTD}
     ${EVENT}
     ${GTEST}
     ${PTHREAD}

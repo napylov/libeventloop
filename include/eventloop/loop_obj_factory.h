@@ -9,6 +9,7 @@ namespace eventloop
 {
 
 
+
 class loop_obj_factory
 {
 public:
@@ -16,11 +17,14 @@ public:
     static
     std::unique_ptr
     <
+        /*
         typename std::enable_if
         <
-            std::is_base_of<loop, obj_type>::value,
+            std::is_base_of<loop<typename...>, obj_type>::value,
             obj_type
         >::type
+        */
+        obj_type
     >
     make( bool run_immediate, arg_types ... args )
     {
@@ -29,7 +33,7 @@ public:
             obj.reset();
         else if ( run_immediate )
         {
-            if ( obj->run() != loop::run_result::OK )
+            if ( obj->run() != obj_type::run_result::OK )
                 obj.reset();
         }
 

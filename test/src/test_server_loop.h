@@ -7,7 +7,9 @@
 
 using namespace eventloop;
 
-class test_server_loop : public server_loop<event_queue_item>
+typedef std::nullptr_t tsl_custom;
+
+class test_server_loop : public server_loop<tsl_custom, event_queue_item>
 {
 protected:
     event_ptr   signal_event;

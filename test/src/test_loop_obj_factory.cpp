@@ -2,16 +2,19 @@
 #include "eventloop/loop_obj_factory.h"
 
 
-class loop_for_test_factory : public eventloop::loop
+class loop_for_test_factory : public eventloop::loop<std::nullptr_t>
 {
 public:
     // For test_loop_obj_factory.
     int arg0;
     char arg1;
 public:
-    loop_for_test_factory() : eventloop::loop(), arg0( 0 ), arg1( 0 ) {}
+    loop_for_test_factory()
+    : eventloop::loop<std::nullptr_t>(), arg0( 0 ), arg1( 0 ) {}
+
     loop_for_test_factory( int arg0_, char arg1_ )
-         : eventloop::loop(), arg0( arg0_ ), arg1( arg1_ ) {}
+         : eventloop::loop<std::nullptr_t>(), arg0( arg0_ ), arg1( arg1_ ) {}
+
     virtual ~loop_for_test_factory() {}
 
     virtual bool init() override { return true; }
