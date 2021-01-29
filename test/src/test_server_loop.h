@@ -9,7 +9,7 @@ using namespace eventloop;
 
 typedef std::nullptr_t tsl_custom;
 
-class test_server_loop : public server_loop<tsl_custom, event_queue_item>
+class test_server_loop : public server_loop<tsl_custom, event_queue_item<tsl_custom> >
 {
 protected:
     event_ptr   signal_event;
@@ -24,7 +24,7 @@ public:
     test_server_loop();
     virtual ~test_server_loop();
 
-    virtual void process_event( event_queue_item &&item ) override;
+    virtual void process_event( event_queue_item<tsl_custom> &&item ) override;
 
     bool test_connect_ipv4();
     bool test_connect_ipv6();

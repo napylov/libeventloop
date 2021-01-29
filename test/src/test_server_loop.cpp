@@ -26,7 +26,7 @@ test_server_loop::~test_server_loop()
 }
 
 
-void test_server_loop::process_event( event_queue_item &&item )
+void test_server_loop::process_event( event_queue_item<tsl_custom> &&item )
 {
     if ( item.fd < 0 )
         return;

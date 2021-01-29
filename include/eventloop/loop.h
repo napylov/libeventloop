@@ -111,7 +111,7 @@ protected:
         return base.operator bool();
     }
 
-/*
+
     virtual event_ptr   make_event
                         (
                             int fd,
@@ -121,7 +121,7 @@ protected:
                             const timeval *tv = nullptr
                         )
     {
-        loop::callback_info *info = make_callback_info( fn, std::forward(data) );
+        loop::callback_info *info = make_callback_info( fn, std::move(data) );
         if ( !info )
             return event_ptr();
 
@@ -137,7 +137,7 @@ protected:
 
         return result;
     }
-*/
+
 
     virtual event_ptr   make_event
                         (
@@ -164,7 +164,8 @@ protected:
 
         return result;
     }
-    /*
+
+
     virtual callback_info   *make_callback_info
                             (
                                 callback_fn fn,
@@ -174,7 +175,7 @@ protected:
         loop::callback_info *info = nullptr;
         try
         {
-            info = new callback_info( fn, std::forward( data ) );
+            info = new callback_info( fn, std::move( data ) );
         }
         catch ( std::bad_alloc & )
         {
@@ -182,7 +183,7 @@ protected:
 
         return info;
     }
-    */
+
 
 
     virtual callback_info   *make_callback_info

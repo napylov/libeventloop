@@ -59,12 +59,12 @@ public:
     }
 
 protected:
-    virtual void on_client( evutil_socket_t fd, short what, const custom_data_t & ) override
+    virtual void on_client( evutil_socket_t fd, short what, const custom_data_t &data ) override
     {
         std::cout << __PRETTY_FUNCTION__ << "\n";
         //DEBUG_CODE( std::cout << "DEBUG fd[" << fd << "] what [" << what << "]\n" );
         if ( what & EV_READ )
-            queue.push( q_item( fd, what, nullptr ) );
+            queue.push( q_item( fd, what, data ) );
         else if ( what & EV_CLOSED )
             this->fd_events.erase( fd );
     }
