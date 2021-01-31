@@ -12,10 +12,11 @@ struct event_queue_item
 {
     int             fd;
     int             what;
+    custom_data_t   data;
 
     event_queue_item() : fd( -1 ), what( 0 ) {}
-    event_queue_item( int fd_, int what_, const custom_data_t& /* need to interface. ignored*/ )
-        : fd( fd_ ), what( what_ )
+    event_queue_item( int fd_, int what_, const custom_data_t& data_ )
+        : fd( fd_ ), what( what_ ), data( data_ )
         {}
 
     virtual ~event_queue_item() = default;

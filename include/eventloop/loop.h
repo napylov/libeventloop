@@ -10,9 +10,6 @@ namespace eventloop
 {
 
 
-void event_callback( int fd, short flags, void *arg );
-
-
 template <typename custom_data_t>
 class loop
 {
