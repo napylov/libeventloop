@@ -6,7 +6,6 @@ namespace eventloop
 {
 
 // Default type to use event_queue.
-// Custom data are ignored.
 template <typename custom_data_t>
 struct event_queue_item
 {

@@ -23,6 +23,7 @@ include_directories( ${INC_DIR} )
 set(
     EVENTLOOP_SRC
     ${SRC_DIR}/fd_factory.cpp
+    ${SRC_DIR}/log.cpp
 )
 
 add_library(

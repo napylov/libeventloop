@@ -146,6 +146,8 @@ protected:
 
     virtual callback_accept_info* make_callback_accept_info()
     {
+        FUNC;
+
         callback_accept_info* info = nullptr;
         try
         {
@@ -176,6 +178,8 @@ protected:
 public:
     void run_threads( int cnt )
     {
+        FUNC;
+
         work_flag = true;
         for ( int i = 0; i < cnt; i++ )
         {
@@ -192,6 +196,8 @@ public:
 
     virtual void stop_threads()
     {
+        FUNC;
+
         work_flag = false;
 
         for ( auto &it : threads )
@@ -204,6 +210,8 @@ public:
 public:
     virtual bool init() override
     {
+        FUNC;
+
         if ( !(
                  this->make_config() &&
                  this->make_base() &&
@@ -257,8 +265,9 @@ protected:
             int                     sock_len
     )
     {
+        FUNC;
+
         DEBUG_CODE( \
-            std::cout << __PRETTY_FUNCTION__ << "\n"; \
             std::cout << "fd [" << fd << "]\n"; \
             std::cout << "address [" << get_ip_str( addr ) << "]\n"; \
         );

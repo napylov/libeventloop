@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "types.h"
+#include "log.h"
 
 namespace eventloop
 {
@@ -87,12 +88,16 @@ public:
 protected:
     virtual bool        make_config()
     {
+        FUNC;
+
         cfg = event_cfg_ptr( event_config_new(), &config_destructor );
         return cfg.operator bool();
     }
 
     virtual bool        make_base()
     {
+        FUNC;
+
         if ( cfg )
         {
             base = event_base_ptr
@@ -118,6 +123,8 @@ protected:
                             const timeval *tv = nullptr
                         )
     {
+        FUNC;
+
         loop::callback_info *info = make_callback_info( fn, std::move(data) );
         if ( !info )
             return event_ptr();
@@ -145,6 +152,8 @@ protected:
                             const custom_data_t &data = custom_data_t()
                         )
     {
+        FUNC;
+
         loop::callback_info *info = make_callback_info( fn, data );
         if ( !info )
             return event_ptr();
@@ -169,6 +178,8 @@ protected:
                                 custom_data_t &&data
                             )
     {
+        FUNC;
+
         loop::callback_info *info = nullptr;
         try
         {
@@ -189,6 +200,8 @@ protected:
                                 const custom_data_t &data
                             )
     {
+        FUNC;
+
         loop::callback_info *info = nullptr;
         try
         {
