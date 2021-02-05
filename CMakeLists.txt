@@ -12,7 +12,19 @@ set( INC_DIR ${PROJECT_SOURCE_DIR}/include )
 set( TEST_SUBDIR test )
 set( TEST_DIR ${PROJECT_SOURCE_DIR}/${TEST_SUBDIR} )
 
-set( CMAKE_CXX_FLAGS "-Wall -g -std=c++17" )
+if( NOT CMAKE_BUILD_TYPE )
+    set( CMAKE_BUILD_TYPE Debug )
+endif()
+
+
+if ( CMAKE_BUILD_TYPE STREQUAL "Release" )
+    set( BUILD_FLAGS "-O3" )
+else()
+    set( BUILD_FLAGS "-g -O0 -DDEBUG_BUILD" )
+endif()
+
+
+set( CMAKE_CXX_FLAGS "-Wall ${BUILD_FLAGS} -std=c++17" )
 
 find_library( EVENT event )
 find_library( GTEST gtest )
@@ -40,3 +52,14 @@ target_link_libraries(
 )
 
 add_subdirectory( test ${TEST_SUBDIR} )
+
+
+install(
+    TARGETS eventloop
+    LIBRARY DESTINATION lib
+)
+
+install(
+    DIRECTORY ${INC_DIR}/eventloop
+    PUBLIC_HEADER DESTINATION include
+)
