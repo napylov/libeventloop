@@ -10,7 +10,10 @@
 namespace eventloop
 {
 
-
+/**
+ * @brief   event_queue     Thread safety queue of events.
+ * @tparam  item            Type of queue item.
+ */
 template <typename item>
 class event_queue
 {
@@ -38,6 +41,10 @@ public:
 
     ~event_queue() = default;
 
+    /**
+     * @brief push  Push event into queue.
+     * @param obj   Object to push.
+     */
     void push( item &&obj )
     {
         std::unique_lock<std::mutex> lock( mutex );
@@ -50,6 +57,10 @@ public:
     }
 
 
+    /**
+     * @brief push  Push event into queue.
+     * @param obj   Object to push.
+     */
     void push( const item &obj )
     {
         std::unique_lock<std::mutex> lock( mutex );
@@ -61,7 +72,12 @@ public:
         notify();
     }
 
-    // wait if empty
+    /**
+     * @brief pop   Pop event from queue.
+     *              If queue is empty and work_flag is not reset
+     *              the function wait.
+     * @return      Item from queue.
+     */
     item pop()
     {
         bool ok = false;
@@ -90,6 +106,10 @@ public:
     }
 
 
+    /**
+     * @brief set_work_flag
+     * @param value         New value of a flag.
+     */
     void set_work_flag( bool value )
     {
         work_flag.store( value );

@@ -22,7 +22,8 @@ test_server_loop::~test_server_loop()
         close( fd_ipv4 );
     if ( fd_ipv6 >= 0 )
         close( fd_ipv6 );
-    ::close( event_get_fd( signal_event.get() ) );
+    if ( signal_event )
+        ::close( event_get_fd( signal_event.get() ) );
 }
 
 
@@ -93,6 +94,8 @@ bool test_server_loop::test_on_client()
 
 bool test_server_loop::init_custom_events()
 {
+    FUNC;
+
     signal_event =
         make_event
         (
@@ -127,7 +130,9 @@ public:
 
     virtual void SetUp() override
     {
+        std::cout << "SetUp()\n";
         tested_class = loop_obj_factory::make<test_server_loop>( false );
+        std::cout << "SetUp() " << tested_class.operator bool() << "\n";
     }
 
 

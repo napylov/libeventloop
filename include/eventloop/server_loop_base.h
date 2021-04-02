@@ -18,6 +18,10 @@
 namespace eventloop
 {
 
+
+/**
+ *  Base class to make event loop for server.
+ */
 template <typename custom_data_t>
 class server_loop_base : public loop<custom_data_t>
 {
@@ -62,6 +66,9 @@ protected:
     bool                        work_flag;
 
 public:
+    /**
+     * @brief server_loop_base  Constructor.
+     */
     server_loop_base()
     :   loop<custom_data_t>(),
         port( DEFAULT_PORT ),
@@ -70,6 +77,12 @@ public:
     {
     }
 
+
+    /**
+     * @brief server_loop_base  Constructor.
+     * @param port_             Listen port.
+     * @param thread_count      Size of threads pool.
+     */
     server_loop_base
     (
             uint16_t port_,
@@ -120,6 +133,8 @@ public:
 protected:
     virtual bool make_listener()
     {
+        FUNC;
+
         struct sockaddr_in6 sin = {0};
         sin.sin6_family = AF_INET6;
         sin.sin6_addr = IN6ADDR_ANY_INIT;
@@ -140,6 +155,8 @@ protected:
                         &evconnlistener_deleter
                     )
         ;
+
+        LOG_DEBUG( "lister %d", (int)listener.operator bool() );
 
         return listener.operator bool();
     }
@@ -165,8 +182,9 @@ protected:
                             )
             ;
         }
-        catch ( std::bad_alloc & )
+        catch ( std::bad_alloc &e )
         {
+            LOG_ERROR( e.what() );
             delete info;
             info = nullptr;
         }
@@ -258,6 +276,12 @@ public:
 
 
 protected:
+    /**
+     * @brief on_accept     Callback function called when new client connecting to server.
+     * @param fd            File descriptor.
+     * @param addr          Address.
+     * @param sock_len      addr size.
+     */
     virtual void on_accept
     (
             evutil_socket_t         fd,
@@ -298,7 +322,20 @@ protected:
         on_client( fd, what, data );
     }
 
+
+    /**
+     * @brief on_client     Callback function called when happen
+     *                      event in client connection socket.
+     *                      The function have to implement in derived class.
+     * @param fd            File descriptors.
+     * @param what          Flags (see libevent's manual).
+     */
     virtual void on_client( evutil_socket_t fd, short what, const custom_data_t & ) = 0;
+
+    /**
+     * @brief process_thread_fn     Thread's function.
+     *                              The function have implement in derived class.
+     */
     virtual void process_thread_fn() = 0;
 
 

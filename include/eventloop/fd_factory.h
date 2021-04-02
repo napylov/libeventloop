@@ -14,6 +14,15 @@
 
 #include <iostream>
 
+
+namespace eventloop
+{
+
+
+/**
+ * @brief   The fd_factory class
+ *          Factory to create some kinds of file descriptors.
+ */
 class fd_factory
 {
 public:
@@ -24,19 +33,54 @@ public:
     ;
 
 public:
+    /**
+     * @brief get_addrinfo  Create addrinfo pointer from host and proto.
+     * @param host          Host.
+     * @param proto         Protocol (see socket library).
+     * @return              Pointer (unique_ptr) to addrinfo object.
+     */
     static addrinfo_ptr get_addrinfo( const char *host, int proto );
 
+
+    /**
+     * @brief connect       Connect to server.
+     * @param host          Host.
+     * @param port          Port.
+     * @param proto         Protocol.
+     * @return
+     */
     static int connect( const char *host, uint16_t port, int proto );
 
+
+    /**
+     * @brief connect       Connect to server.
+     * @param host          Host.
+     * @param port          Port.
+     * @param proto         Protocol.
+     * @return
+     */
     static inline int connect( const std::string &host, uint16_t port, int proto )
     {
         return connect( host.c_str(), port, proto );
     }
 
 
+    /**
+     * @brief set_fd_non_block  Set non-block flags for socket.
+     * @param fd                File descriptor.
+     * @return                  true if success.
+     */
     static bool set_fd_non_block( int fd );
 
 
+    /**
+     * @brief  init_sigset      Init sigset_t object to create file descriptor
+     *                          for signals handling.
+     * @tparam T                Type of container with signals numbers.
+     * @param  set              sigset_t object.
+     * @param container         Container with signals numbers.
+     * @return                  true if success.
+     */
     template <class T>
     static bool init_sigset( sigset_t *set, const T &container )
     {
@@ -64,6 +108,11 @@ public:
     }
 
 
+    /**
+     * @brief   create_signal_fd    Create file descriptor for signals handling.
+     * @tparam  T                   Type of container with signals numbers.
+     * @param                       Container with signals numbers.
+     */
     template <class T>
     static int create_signal_fd( const T &container )
     {
@@ -74,5 +123,8 @@ public:
         return signalfd( -1, &sigset, SFD_NONBLOCK );
     }
 };
+
+
+} // namespace eventloop
 
 #endif // FD_FACTORY_H

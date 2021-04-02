@@ -14,15 +14,31 @@ namespace eventloop
 {
 
 
+
+/**
+ *  @brief  Class to create server event loop.
+ *  @tparam custom_data_t   Type for custom data for event.
+ *  @tparam q_item          Type of events queue items.
+ */
 template <typename custom_data_t, typename q_item>
 class server_loop : public server_loop_base<custom_data_t>
 {
 protected:
+    /// Queue of events.
     event_queue<q_item>     queue;
 
 
 public:
+    /**
+     * @brief server_loop   Default constructor.
+     */
     server_loop() : server_loop_base<custom_data_t>() {}
+
+    /**
+     * @brief server_loop       Constructor.
+     * @param port_             Listening port.
+     * @param threads_count_    Threads count in a pool.
+     */
     server_loop
     (
             uint16_t port_,
@@ -32,12 +48,19 @@ public:
     : server_loop_base<custom_data_t>( port_, threads_count, tv_ )
     {}
 
+    /**
+     * @brief ~server_loop      Destructor.
+     */
     virtual ~server_loop()
     {
         stop_threads();
     }
 
 public:
+    /**
+     * @brief stop      Stop loop.
+     * @return          True if success.
+     */
     virtual bool stop() override
     {
         stop_threads();
@@ -45,6 +68,9 @@ public:
         return event_base_loopexit( this->base.get(), nullptr ) != -1;
     }
 
+    /**
+     * @brief stop_threads  Stop all threads.
+     */
     virtual void stop_threads() override
     {
         this->work_flag = false;
@@ -59,9 +85,17 @@ public:
     }
 
 protected:
+    /**
+     * @brief on_client     The callback function called for event on
+     *                      client's connection socket.
+     *                      The function may be overrided in child class.
+     * @param fd            File desctiptor.
+     * @param what          Flag of event (see libevent manual).
+     * @param data          Custom data.
+     */
     virtual void on_client( evutil_socket_t fd, short what, const custom_data_t &data ) override
     {
-        std::cout << __PRETTY_FUNCTION__ << "\n";
+        //std::cout << __PRETTY_FUNCTION__ << "\n";
         //DEBUG_CODE( std::cout << "DEBUG fd[" << fd << "] what [" << what << "]\n" );
         if ( what & EV_READ )
             queue.push( q_item( fd, what, data ) );
@@ -69,8 +103,18 @@ protected:
             this->fd_events.erase( fd );
     }
 
+    /**
+     * @brief process_event Handling event.
+     *                      The function have to overrided in child class.
+     * @param item          Event's info.
+     */
     virtual void process_event( q_item &&item ) = 0;
 
+    /**
+     * @brief process_thread_fn     Thread function.
+     *                              The function pop event info from queue then
+     *                              call process_event().
+     */
     virtual void process_thread_fn()
     {
         while ( this->work_flag )

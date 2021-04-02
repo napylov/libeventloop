@@ -7,9 +7,12 @@
 bool test_fd_factory::test_create_signal_fd()
 {
     std::array<int, 2> sig_arr{ SIGUSR1, SIGUSR2 };
-    int fd = fd_factory::create_signal_fd( sig_arr );
+    int fd = eventloop::fd_factory::create_signal_fd( sig_arr );
     if ( fd < 0 )
+    {
+        std::cout << "Signal fd isn't created.\n";
         return false;
+    }
 
     pid_t pid = getpid();
 
@@ -26,6 +29,7 @@ bool test_fd_factory::test_create_signal_fd()
 
 bool test_fd_factory::check_signal( int fd, pid_t pid, int signo, int custom )
 {
+    std::cout << __PRETTY_FUNCTION__ << "\n ";
     sigval sv = { 0 };
     sv.sival_int = custom;
 

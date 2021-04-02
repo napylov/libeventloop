@@ -9,6 +9,10 @@
 #include "eventloop/debug_print.h"
 
 
+namespace eventloop
+{
+
+
 fd_factory::addrinfo_ptr fd_factory::get_addrinfo( const char *host, int proto )
 {
     addrinfo request = { 0 };
@@ -80,4 +84,8 @@ bool fd_factory::set_fd_non_block( int fd )
         return false;
 
     return fcntl( fd, F_SETFL, flags | O_NONBLOCK ) != -1;
+}
+
+
+
 }
