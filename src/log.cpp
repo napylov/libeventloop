@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2021 Alexander Napylov.
+ * BSD 2-clause license.
+ */
+
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>

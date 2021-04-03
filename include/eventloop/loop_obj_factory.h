@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2021 Alexander Napylov.
+ * BSD 2-clause license.
+ */
+
+
 #ifndef LOOP_OBJ_FACTORY_H
 #define LOOP_OBJ_FACTORY_H
 

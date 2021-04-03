@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2021 Alexander Napylov.
+ * BSD 2-clause license.
+ */
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>

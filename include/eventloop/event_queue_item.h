@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2021 Alexander Napylov.
+ * BSD 2-clause license.
+ */
+
 #ifndef QUEUE_ITEM_H
 #define QUEUE_ITEM_H
 

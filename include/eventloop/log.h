@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2021 Alexander Napylov.
+ * BSD 2-clause license.
+ */
+
 #ifndef LOG_H
 #define LOG_H
 

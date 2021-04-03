@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2021 Alexander Napylov.
+ * BSD 2-clause license.
+ */
+
 #ifndef EVENT_QUEUE_H
 #define EVENT_QUEUE_H
 

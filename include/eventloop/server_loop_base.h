@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2021 Alexander Napylov.
+ * BSD 2-clause license.
+ */
+
 #ifndef SERVER_LOOP_BASE_H
 #define SERVER_LOOP_BASE_H
 
