@@ -52,6 +52,7 @@ target_link_libraries(
 )
 
 add_subdirectory( test ${TEST_SUBDIR} )
+add_subdirectory( examples )
 
 
 install(

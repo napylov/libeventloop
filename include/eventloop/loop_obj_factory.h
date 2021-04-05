@@ -44,9 +44,10 @@ public:
         else if ( run_immediate )
         {
             LOG_DEBUG( "Run immediate." );
-            if ( obj->run() != obj_type::run_result::OK )
+            int ran = obj->run();
+            if ( ran != obj_type::run_result::OK )
             {
-                LOG_ERROR( "Run failed" );
+                LOG_ERROR( "Run failed. Return code %d", ran );
                 obj.reset();
             }
         }

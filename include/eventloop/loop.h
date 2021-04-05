@@ -159,9 +159,9 @@ protected:
                         (
                             int fd,
                             short what,
-                            custom_data_t &&data,
                             callback_fn fn,
-                            const timeval *tv = nullptr
+                            const timeval *tv = nullptr,
+                            custom_data_t &&data = custom_data_t()
                         )
     {
         FUNC;
@@ -207,7 +207,13 @@ protected:
         ;
 
         if ( result )
-            event_add( result.get(), tv );
+        {
+            if ( event_add( result.get(), tv ) < 0 )
+            {
+                LOG_ERROR( "event hasn't been add" );
+                result.reset();
+            }
+        }
 
         return result;
     }
@@ -248,8 +254,9 @@ protected:
         {
             info = new callback_info( fn, data );
         }
-        catch ( std::bad_alloc & )
+        catch ( std::bad_alloc &e )
         {
+            LOG_ERROR( e.what() );
         }
 
         return info;
@@ -288,6 +295,13 @@ public:
 
 
 public:
+    /**
+     * @brief init  Function to initialize config, base and custom objects.
+     *              It called from loop_obj_factory::make().
+     *              The function must be implement in derived class to
+     *              call make_base() and make_config() (optional).
+     * @return      true if success.
+     */
     virtual bool init() = 0;
 };
 

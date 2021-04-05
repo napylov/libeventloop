@@ -106,7 +106,9 @@ bool test_server_loop::init_custom_events()
                         this,
                         std::placeholders::_1,
                         std::placeholders::_2
-                     )
+                     ),
+            nullptr,
+            nullptr
         )
     ;
 
