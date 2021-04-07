@@ -8,23 +8,15 @@
 #include "eventloop/fd_factory.h"
 
 
-example_loop::~example_loop()
-{
-    posix_queue_event.reset();
-    mq_close( posix_queue_fd );
-
-    signal_event.reset();
-    close( signal_fd );
-}
-
-
 bool example_loop::init()
 {
     if ( !make_base() )
         return false;
 
-    posix_queue_fd = mq_open(
-                "/eventloop_example",
+    static const char EXAMPLE_MQ[] = "/eventloop_example";
+
+    int posix_queue_fd = mq_open(
+                EXAMPLE_MQ,
                 O_RDONLY | O_CREAT | O_NONBLOCK,
                 0600,
                 nullptr
@@ -47,7 +39,12 @@ bool example_loop::init()
                     std::placeholders::_3
                 ),
                 nullptr,
-                nullptr
+                nullptr,
+                [&] ( int fd )
+                {
+                    ::mq_close( fd );
+                    ::mq_unlink( EXAMPLE_MQ );
+                }
             )
     ;
 
@@ -58,7 +55,7 @@ bool example_loop::init()
     }
 
 
-    signal_fd = fd_factory::create_signal_fd<std::array<int, 3> >( { SIGTERM, SIGUSR1, SIGUSR2 } );
+    int signal_fd = fd_factory::create_signal_fd<std::array<int, 3> >( { SIGTERM, SIGUSR1, SIGUSR2 } );
     if ( signal_fd < 0 )
     {
         LOG_ERROR( "Signal fd hasn't been inited." );

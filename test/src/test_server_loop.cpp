@@ -16,17 +16,6 @@ test_server_loop::test_server_loop()
 }
 
 
-test_server_loop::~test_server_loop()
-{
-    if ( fd_ipv4 >= 0 )
-        close( fd_ipv4 );
-    if ( fd_ipv6 >= 0 )
-        close( fd_ipv6 );
-    if ( signal_event )
-        ::close( event_get_fd( signal_event.get() ) );
-}
-
-
 void test_server_loop::process_event( event_queue_item<tsl_custom> &&item )
 {
     if ( item.fd < 0 )

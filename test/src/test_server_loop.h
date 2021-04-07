@@ -22,7 +22,7 @@ public:
 
 public:
     test_server_loop();
-    virtual ~test_server_loop();
+    virtual ~test_server_loop() = default;
 
     virtual void process_event( event_queue_item<tsl_custom> &&item ) override;
 

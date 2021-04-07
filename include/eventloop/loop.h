@@ -26,13 +26,14 @@ protected:
     event_base_ptr              base;
 
 public:
-    typedef std::function<void(int, short, const custom_data_t&)>  callback_fn;
+    typedef std::function<void(int, short, const custom_data_t&)>   callback_fn;
+    typedef std::function<void(int)>                                fd_close_fn;
 
     /**
-     * @brief   The callback_info struct.
+     * @brief   The event_info struct.
      *          Store information about callback function and custom data.
      */
-    struct callback_info
+    struct event_info
     {
         /// Callback function.
         callback_fn     fn;
@@ -40,12 +41,29 @@ public:
         /// Custom data.
         custom_data_t   data;
 
-        callback_info() = delete;
-        callback_info( callback_fn fn_, custom_data_t &&data_ )
-            : fn( fn_ ), data( data_ ) {}
-        callback_info( callback_fn fn_, const custom_data_t &data_ )
-            : fn( fn_ ), data( data_ ) {}
-        virtual ~callback_info() = default;
+        /// File descriptor close function.
+        fd_close_fn     fd_closer;
+
+        event_info() = delete;
+        event_info(
+                callback_fn fn_,
+                custom_data_t &&data_,
+                fd_close_fn fd_closer_ = &::close
+        )
+            : fn( fn_ ), data( data_ ), fd_closer( fd_closer_ )
+        {
+        }
+
+        event_info(
+                callback_fn fn_,
+                const custom_data_t &data_,
+                fd_close_fn fd_closer_ = &::close
+        )
+            : fn( fn_ ), data( data_ )
+        {
+        }
+
+        virtual ~event_info() = default;
     };
 
 
@@ -92,7 +110,7 @@ public:
      *                          in the wrapper's event.
      * @param fd                File descriptor.
      * @param flags             Flags (see libevent manual).
-     * @param arg               Pointer to callback_info.
+     * @param arg               Pointer to event_info.
      */
     static void event_callback( int fd, short flags, void *arg )
     {
@@ -100,14 +118,14 @@ public:
             (
                 fd,
                 flags,
-                reinterpret_cast<eventloop::loop<custom_data_t>::callback_info*>( arg )
+                reinterpret_cast<eventloop::loop<custom_data_t>::event_info*>( arg )
             )
         ;
     }
 
 
     /**
-     * @brief call_callback     Call callback function defined in callback_info object.
+     * @brief call_callback     Call callback function defined in event_info object.
      * @param fd                File desсriptor.
      * @param what              Flags (see libevent manual).
      * @param info              Info about callback.
@@ -116,7 +134,7 @@ public:
     (
             int fd,
             short what,
-            callback_info *info
+            event_info *info
     )
     {
         if ( info && info->fn )
@@ -161,12 +179,13 @@ protected:
                             short what,
                             callback_fn fn,
                             const timeval *tv = nullptr,
-                            custom_data_t &&data = custom_data_t()
+                            custom_data_t &&data = custom_data_t(),
+                            fd_close_fn fd_closer = &::close
                         )
     {
         FUNC;
 
-        loop::callback_info *info = make_callback_info( fn, std::move(data) );
+        loop::event_info *info = make_event_info( fn, std::move(data), fd_closer );
         if ( !info )
             return event_ptr();
 
@@ -190,12 +209,13 @@ protected:
                             short what,
                             callback_fn fn,
                             const timeval *tv = nullptr,
-                            const custom_data_t &data = custom_data_t()
+                            const custom_data_t &data = custom_data_t(),
+                            fd_close_fn fd_closer = &::close
                         )
     {
         FUNC;
 
-        loop::callback_info *info = make_callback_info( fn, data );
+        loop::event_info *info = make_event_info( fn, data, fd_closer );
         if ( !info )
             return event_ptr();
 
@@ -219,18 +239,19 @@ protected:
     }
 
 
-    virtual callback_info   *make_callback_info
+    virtual event_info   *make_event_info
                             (
                                 callback_fn fn,
-                                custom_data_t &&data
+                                custom_data_t &&data,
+                                fd_close_fn fd_closer = &::close
                             )
     {
         FUNC;
 
-        loop::callback_info *info = nullptr;
+        loop::event_info *info = nullptr;
         try
         {
-            info = new callback_info( fn, std::move( data ) );
+            info = new event_info( fn, std::move( data ), fd_closer );
         }
         catch ( std::bad_alloc & )
         {
@@ -241,18 +262,19 @@ protected:
 
 
 
-    virtual callback_info   *make_callback_info
+    virtual event_info   *make_event_info
                             (
                                 callback_fn fn,
-                                const custom_data_t &data
+                                const custom_data_t &data,
+                                fd_close_fn fd_closer = &::close
                             )
     {
         FUNC;
 
-        loop::callback_info *info = nullptr;
+        loop::event_info *info = nullptr;
         try
         {
-            info = new callback_info( fn, data );
+            info = new event_info( fn, data, fd_closer );
         }
         catch ( std::bad_alloc &e )
         {
@@ -285,7 +307,9 @@ public:
         void *arg = event_get_callback_arg( ev );
         if ( arg )
         {
-            callback_info *info = reinterpret_cast<callback_info*>( arg );
+            event_info *info = reinterpret_cast<event_info*>( arg );
+            if ( info && info->fd_closer )
+                info->fd_closer( event_get_fd( ev ) );
             delete info;
         }
 

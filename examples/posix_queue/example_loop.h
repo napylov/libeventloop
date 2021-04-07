@@ -11,15 +11,12 @@ typedef std::nullptr_t example_custom_data_t;
 class example_loop : public loop<example_custom_data_t>
 {
 private:
-    int         posix_queue_fd;
     event_ptr   posix_queue_event;
-
-    int         signal_fd;
     event_ptr   signal_event;
 
 public:
     example_loop() = default;
-    virtual ~example_loop();
+    virtual ~example_loop() = default;
 
     virtual bool init() override;
 
