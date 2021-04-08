@@ -10,37 +10,42 @@
 
 bool example_loop::init()
 {
+    // Initialize base (pointer to event_base).
     if ( !make_base() )
         return false;
 
+    // Message queue name.
     static const char EXAMPLE_MQ[] = "/eventloop_example";
 
+    // Open queue.
     int posix_queue_fd = mq_open(
                 EXAMPLE_MQ,
                 O_RDONLY | O_CREAT | O_NONBLOCK,
                 0600,
                 nullptr
     );
+    // If open queue is unsecessful return false.
     if ( posix_queue_fd < 0 )
     {
         LOG_ERROR( "Can't open queue. errno %d", errno );
         return false;
     }
 
+    // Make pointer to event object.
     posix_queue_event =
             make_event(
-                posix_queue_fd,
-                EV_READ | EV_PERSIST,
-                std::bind(
+                posix_queue_fd,             // File descriptor.
+                EV_READ | EV_PERSIST,       // Flags.
+                std::bind(                  // Bind callback function.
                     &example_loop::on_queue,
                     this,
                     std::placeholders::_1,
                     std::placeholders::_2,
                     std::placeholders::_3
                 ),
-                nullptr,
-                nullptr,
-                [&] ( int fd )
+                nullptr,                    // Timeval isn't used in the example.
+                nullptr,                    // Custom data isn't used in the example.
+                [&] ( int fd )              // Function to close file descriptor.
                 {
                     ::mq_close( fd );
                     ::mq_unlink( EXAMPLE_MQ );
@@ -48,6 +53,7 @@ bool example_loop::init()
             )
     ;
 
+    // If unseccesful return false.
     if ( !posix_queue_event )
     {
         LOG_ERROR( "!posix_queue_event" );
@@ -55,6 +61,8 @@ bool example_loop::init()
     }
 
 
+    // Create file descriptor for signals.
+    // Argument - container with signals number.
     int signal_fd = fd_factory::create_signal_fd<std::array<int, 3> >( { SIGTERM, SIGUSR1, SIGUSR2 } );
     if ( signal_fd < 0 )
     {
@@ -62,6 +70,7 @@ bool example_loop::init()
         return false;
     }
 
+    // Make pointer to event object. Used file descripor closer by default (close(int)).
     signal_event =
             make_event(
                 signal_fd,
