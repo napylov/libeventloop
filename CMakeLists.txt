@@ -24,7 +24,7 @@ else()
 endif()
 
 
-set( CMAKE_CXX_FLAGS "-Wall ${BUILD_FLAGS} -std=c++17" )
+set( CMAKE_CXX_FLAGS "-Wall ${BUILD_FLAGS} -std=c++17 -D_GLIBCXX_USE_CXX11_ABI=0" )
 
 find_library( EVENT event )
 find_library( GTEST gtest )
@@ -36,6 +36,7 @@ set(
     EVENTLOOP_SRC
     ${SRC_DIR}/fd_factory.cpp
     ${SRC_DIR}/log.cpp
+    ${SRC_DIR}/tools.cpp
 )
 
 add_library(
@@ -54,6 +55,7 @@ target_link_libraries(
 add_subdirectory( test ${TEST_SUBDIR} )
 add_subdirectory( examples )
 
+set_property(TARGET eventloop PROPERTY CXX_STANDARD 17)
 
 install(
     TARGETS eventloop

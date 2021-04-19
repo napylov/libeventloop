@@ -78,6 +78,8 @@ public:
      */
     virtual void stop_threads() override
     {
+        FUNC;
+
         this->work_flag = false;
         queue.set_work_flag( false );
 
@@ -104,8 +106,11 @@ protected:
         //DEBUG_CODE( std::cout << "DEBUG fd[" << fd << "] what [" << what << "]\n" );
         if ( what & EV_READ )
             queue.push( q_item( fd, what, data ) );
-        else if ( what & EV_CLOSED )
-            this->fd_events.erase( fd );
+        if ( what & EV_CLOSED )
+        {
+            LOG_DEBUG( "disconnect %d", fd );
+            this->close_client_fd( fd );
+        }
     }
 
     /**

@@ -301,6 +301,8 @@ public:
 
     static void event_destructor( event *ev )
     {
+        FUNC;
+
         if ( !ev )
             return;
 

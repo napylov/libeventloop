@@ -110,6 +110,12 @@ public:
         return item();
     }
 
+    /*
+    bool pop( item &obj, bool wait )
+    {
+    }
+    */
+
 
     /**
      * @brief set_work_flag

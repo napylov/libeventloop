@@ -8,6 +8,7 @@ find_library( EVENT event )
 find_library( GTEST gtest )
 find_library( PTHREAD pthread )
 
+set( CMAKE_CXX_FLAGS "-Wall ${BUILD_FLAGS} -std=c++17" )
 
 set( TEST_SRC_DIR ${PROJECT_SOURCE_DIR}/src )
 

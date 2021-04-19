@@ -19,6 +19,7 @@
 
 #include "loop.h"
 #include "debug_print.h"
+#include "tools.h"
 
 namespace eventloop
 {
@@ -257,6 +258,7 @@ public:
 
 
 public:
+    /*
     static std::string get_ip_str( const struct sockaddr *sa )
     {
         static const int BUF_SIZE = 255;
@@ -278,6 +280,7 @@ public:
 
         return std::string(s);
     }
+    */
 
 
 protected:
@@ -298,14 +301,14 @@ protected:
 
         DEBUG_CODE( \
             std::cout << "fd [" << fd << "]\n"; \
-            std::cout << "address [" << get_ip_str( addr ) << "]\n"; \
+            std::cout << "address [" << tools::get_ip_str( addr ) << "]\n"; \
         );
 
         fd_events[ fd ] =
             this->make_event
                 (
                     fd,
-                    EV_READ | EV_CLOSED,
+                    EV_READ | EV_CLOSED | EV_PERSIST,
                     std::bind
                     (
                         &server_loop_base::call_on_client,
@@ -315,9 +318,20 @@ protected:
                         std::placeholders::_3
                     ),
                     tv.get(),
-                    custom_data_t()
+                    make_custom_data_on_accept( fd, addr, sock_len )
                 )
         ;
+    }
+
+
+    virtual custom_data_t make_custom_data_on_accept
+    (
+            evutil_socket_t         fd,
+            const struct sockaddr   *addr,
+            int                     sock_len
+    )
+    {
+        return custom_data_t();
     }
 
 
@@ -342,6 +356,13 @@ protected:
      *                              The function have implement in derived class.
      */
     virtual void process_thread_fn() = 0;
+
+
+    virtual void close_client_fd( int fd )
+    {
+        FUNC;
+        fd_events.erase( fd );
+    }
 
 
 public:
