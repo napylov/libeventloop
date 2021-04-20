@@ -83,6 +83,8 @@ public:
         this->work_flag = false;
         queue.set_work_flag( false );
 
+        this->disconnect_all_clients();
+
         for ( auto &it : this->threads )
             it->join();
 

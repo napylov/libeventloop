@@ -311,7 +311,10 @@ public:
         {
             event_info *info = reinterpret_cast<event_info*>( arg );
             if ( info && info->fd_closer )
+            {
+                LOG_DEBUG( "fd_closer is defined. fd %d", event_get_fd( ev ) );
                 info->fd_closer( event_get_fd( ev ) );
+            }
             delete info;
         }
 

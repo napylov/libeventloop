@@ -11,6 +11,7 @@
 #include <list>
 #include <atomic>
 #include <iostream>
+#include <mutex>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -63,6 +64,7 @@ public:
 protected:
     evconnlistener_ptr          listener;
     std::map<int, event_ptr>    fd_events;
+    std::mutex                  fd_events_mutex;
 
     uint16_t                    port;
     int                         threads_count;
@@ -224,10 +226,21 @@ public:
 
         work_flag = false;
 
+        disconnect_all_clients();
+
         for ( auto &it : threads )
             it->join();
 
         threads.clear();
+    }
+
+
+    void disconnect_all_clients()
+    {
+        FUNC;
+
+        std::lock_guard guard( fd_events_mutex );
+        fd_events.clear();
     }
 
 
@@ -304,23 +317,25 @@ protected:
             std::cout << "address [" << tools::get_ip_str( addr ) << "]\n"; \
         );
 
-        fd_events[ fd ] =
-            this->make_event
-                (
+        insert_into_fd_events
+        (
                     fd,
-                    EV_READ | EV_CLOSED | EV_PERSIST,
-                    std::bind
-                    (
-                        &server_loop_base::call_on_client,
-                        this,
-                        std::placeholders::_1,
-                        std::placeholders::_2,
-                        std::placeholders::_3
-                    ),
-                    tv.get(),
-                    make_custom_data_on_accept( fd, addr, sock_len )
-                )
-        ;
+                    this->make_event
+                        (
+                            fd,
+                            EV_READ | EV_CLOSED | EV_PERSIST,
+                            std::bind
+                            (
+                                &server_loop_base::call_on_client,
+                                this,
+                                std::placeholders::_1,
+                                std::placeholders::_2,
+                                std::placeholders::_3
+                            ),
+                            tv.get(),
+                            make_custom_data_on_accept( fd, addr, sock_len )
+                        )
+        );
     }
 
 
@@ -358,10 +373,28 @@ protected:
     virtual void process_thread_fn() = 0;
 
 
-    virtual void close_client_fd( int fd )
+    void close_client_fd( int fd )
     {
         FUNC;
+
+        LOG_DEBUG( "fd %d", fd );
+        if ( fd < 0 )
+            return;
+
+        std::lock_guard guard( fd_events_mutex );
         fd_events.erase( fd );
+    }
+
+
+    void insert_into_fd_events( int fd, event_ptr &&evt )
+    {
+        FUNC;
+
+        if ( fd < 0 || !evt )
+            return;
+
+        std::lock_guard guard( fd_events_mutex );
+        fd_events[ fd ] = std::move( evt );
     }
 
 
