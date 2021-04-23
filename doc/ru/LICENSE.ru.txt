@@ -34,6 +34,12 @@
 
 ================================================================================
 
-Библиотека eventloop это обёртка над библиотекой libevent. Лицензия на libevent
-находится в файле libevent-license.txt . Содержимое файла libevent-license.txt
-соответствует файлу https://github.com/libevent/libevent/blob/master/LICENSE
+Библиотека eventloop это обёртка над библиотекой libevent.
+Лицензия на libevent находится в файле libevent-license.txt .
+Содержимое файла libevent-license.txt соответствует файлу
+https://github.com/libevent/libevent/blob/master/LICENSE
+
+Для юнит-тестов используется библиотека gtest.
+Лицензия на библиотеку gtest находится в файле gtest-license.txt .
+Содержимое файла gtest-license соответствует файлу
+https://github.com/google/googletest/blob/master/LICENSE

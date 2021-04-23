@@ -32,3 +32,8 @@ The library eventloop is wrapper about libevent.
 Libevent copyright and license see in the file libevent-license.txt .
 The content of libevent-license.txt is same as
 https://github.com/libevent/libevent/blob/master/LICENSE
+
+For unit-tests is unsing gtest library.
+Gtest library copyright and license see in gtest-license.txt .
+The content of libevent-license.txt is same as
+https://github.com/google/googletest/blob/master/LICENSE
