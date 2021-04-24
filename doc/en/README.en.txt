@@ -20,10 +20,12 @@ Description
 ==============
 
 Detailed documentation will be written later.
-Backward compatibility may be broken until stable version.
+Backward compatibility is not guaranteed until first stable version.
+Current version development and tested on Linux x86_64 only.
+Port to other platform it's planning.
 
 
-Build
+Build and install
 ==============
 
 First move to build subdirectory.
@@ -40,3 +42,7 @@ Finalally run make install to install.
 make
 [make test]
 make install
+
+To run test with detailed output tape
+./build/eventloop_test
+after build.

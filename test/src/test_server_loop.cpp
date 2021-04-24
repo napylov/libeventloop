@@ -74,12 +74,12 @@ bool test_server_loop::test_connect_ipv6()
 
 }
 
-
+/*
 bool test_server_loop::test_on_client()
 {
     return true;
 }
-
+*/
 
 bool test_server_loop::init_custom_events()
 {
@@ -209,7 +209,7 @@ TEST_F( test_server_loop_run, fn_connect_ipv6 )
     ASSERT_TRUE( success );
 }
 
-#if 0
+
 TEST_F( test_server_loop_run, fn_on_client )
 {
     ASSERT_TRUE( tested_class.operator bool() );
@@ -224,59 +224,49 @@ TEST_F( test_server_loop_run, fn_on_client )
         }
     ;
 
-    pthread_t test_thread = pthread_self();
+    pthread_t test_thread = 0;
     std::thread thr
-    (
-        //std::launch::async,
-        [&] ()  {
-                    sleep( 1 );
-                    std::list<int> fds;
-                    for ( auto &s : tested_class->input_strings )
-                    {
-                        int tmp = send_string( s );
-                        if ( tmp >= 0 )
-                        {
-                            ++success_sent_cnt;
-                            fds.push_back( tmp );
-                        }
-                    }
-                    sleep( 1 );
-                    for ( auto &fd : fds )
-                        ::close( fd );
-                    std::cout << "try stop tested loop\n";
-                    sleep( 1 );
-                    ASSERT_TRUE( tested_class->stop() );
-                    //kill( getpid(), SIGINT );
-                    pthread_kill( test_thread, SIGINT );
-                    sleep( 1 );
-                    std::cout << "stop test thread\n";
+            (
+                [&] ()
+                {
+                    test_thread = pthread_self();
+                    std::cout << "RUN\n";
+                    ASSERT_TRUE( tested_class->run() == loop<std::nullptr_t>::run_result::OK );
+                    std::cout << "STOP\n";
                 }
-    );
-    thr.detach();
+            )
+    ;
 
-    if ( tested_class )
+    sleep( 1 );
+    std::list<int> fds;
+    for ( auto &s : tested_class->input_strings )
     {
-        std::cout << "RUN\n";
-        ASSERT_TRUE( tested_class->run() == loop<std::nullptr_t>::run_result::OK );
-        std::cout << "STOP\n";
+        int tmp = send_string( s );
+        if ( tmp >= 0 )
+        {
+            ++success_sent_cnt;
+            fds.push_back( tmp );
+        }
     }
+    sleep( 1 );
+    for ( auto &fd : fds )
+        ::close( fd );
+    std::cout << "try stop tested loop\n";
+    sleep( 2 );
+
+    std::cout << "try to stop test thread\n";
+    pthread_kill( test_thread, SIGINT );
+    thr.join();
+    std::cout << "test thread has been stopped\n";
 
     ASSERT_EQ( tested_class->input_strings.size(), success_sent_cnt );
     ASSERT_EQ(
                 tested_class->input_strings.size(),
                 tested_class->output_strings.size()
     );
-/*
-    struct str_comparator
-    {
-        bool operator()(const std::string &a, const std::string &b)
-        { return a < b; }
-    } str_cmp;
-*/
     std::sort(
                 tested_class->output_strings.begin(),
-                tested_class->output_strings.end()/*,
-                str_cmp*/
+                tested_class->output_strings.end()
              )
     ;
 
@@ -289,6 +279,5 @@ TEST_F( test_server_loop_run, fn_on_client )
         it_input++;
         it_output++;
     }
-
 }
-#endif
+

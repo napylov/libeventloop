@@ -28,7 +28,7 @@ public:
 
     bool test_connect_ipv4();
     bool test_connect_ipv6();
-    bool test_on_client();
+    //bool test_on_client();
 
     virtual bool init_custom_events() override;
 protected:
