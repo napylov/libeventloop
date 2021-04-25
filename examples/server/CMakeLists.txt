@@ -5,9 +5,6 @@ project( example_server )
 find_library( EVENT event )
 find_library( PTHREAD pthread )
 find_library( RT rt )
-find_library( EVENTLOOP eventloop
-              PATHS ${CMAKE_BINARY_DIR}
-)
 
 add_executable(
     example_server
@@ -21,7 +18,7 @@ target_link_libraries(
     example_server
     ${EVENT}
     ${PTHREAD}
-    ${EVENTLOOP}
+    eventloop
     ${RT}
 )
 
