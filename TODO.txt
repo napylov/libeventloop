@@ -1,3 +1,7 @@
-Подумать о смене лицензии на MPL.
+Divide one unit test to several.
 
-Проверить закрытие клиентского соединения.
+Write more examples.
+
+Create factory to make file descriptor and event_ptr via singe function.
+
+Write detailed manual and more comments.

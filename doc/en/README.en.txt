@@ -1,23 +1,23 @@
 About
-==============
+=====
 
 The libeventloop is a C++ wrapper about libevent.
 
 
 License
-==============
+=======
 
 See file LICENSE.en.txt
 
 
 Version
-==============
+=======
 
 0.0.1-alpha. Unstable.
 
 
 Description
-==============
+===========
 
 Detailed documentation will be written later.
 Backward compatibility is not guaranteed until first stable version.
@@ -26,7 +26,7 @@ Port to other platform it's planning.
 
 
 Build and install
-==============
+=================
 
 First move to build subdirectory.
 
