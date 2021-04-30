@@ -20,18 +20,20 @@ example_server_loop::example_server_loop( uint16_t port )
 }
 
 
-example_custom_data example_server_loop::make_custom_data_on_accept
+example_custom_data_ptr example_server_loop::make_custom_data_on_accept
 (
         evutil_socket_t         fd,
         const struct sockaddr   *addr,
         int                     sock_len
 )
 {
-    return example_custom_data( fd, addr );
+    return std::make_shared<example_custom_data>( fd, addr );
 }
 
 
-void example_server_loop::process_event( event_queue_item<example_custom_data> &&item )
+void example_server_loop::process_event(
+        event_queue_item<example_custom_data_ptr> &&item
+)
 {
     uint8_t buf[ 0x10000 ] = { 0 };
 
@@ -51,7 +53,7 @@ void example_server_loop::process_event( event_queue_item<example_custom_data> &
         return;
     }
 
-    print_buf( buf, received );
+    print_buf( buf, received, item.data->get_address() );
     send( item.fd, buf, received, 0 );
 
     if ( ( received == 5 && strncmp( reinterpret_cast<char*>(buf), "exit\n", 5 ) == 0 ) ||
@@ -65,9 +67,9 @@ void example_server_loop::process_event( event_queue_item<example_custom_data> &
 }
 
 
-void example_server_loop::print_buf( uint8_t *buf, ssize_t size )
+void example_server_loop::print_buf( uint8_t *buf, ssize_t size, const std::string &addr )
 {
-    printf( "buffer %ld bytes\n", size );
+    printf( "got from %s buffer %ld bytes\n", addr.c_str(), size );
 
     static const int BYTES_IN_LINE = 16;
     static const int HEX_SIZE = 3; // 2 digits + 1 space
@@ -113,7 +115,7 @@ bool example_server_loop::init_custom_events()
                     std::placeholders::_3
                 ),
                 nullptr,
-                example_custom_data()
+                example_custom_data_ptr()
             )
     ;
 
@@ -121,7 +123,7 @@ bool example_server_loop::init_custom_events()
 }
 
 
-void example_server_loop::on_signal(int fd, int, const example_custom_data &)
+void example_server_loop::on_signal(int fd, int, const example_custom_data_ptr &)
 {
     signalfd_siginfo sig_info = { 0 };
     if ( read( fd, &sig_info, sizeof(sig_info) ) <
