@@ -4,4 +4,11 @@ Write more examples.
 
 Create factory to make file descriptor and event_ptr via singe function.
 
+Check code via static analizer.
+
+Run examples from valgrind.
+
+Test for other platforms (not Linux x86_64).
+
 Write detailed manual and more comments.
+
